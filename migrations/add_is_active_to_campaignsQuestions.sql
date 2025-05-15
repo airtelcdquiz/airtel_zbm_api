@@ -1,0 +1,1 @@
+ALTER TABLE campaignsQuestions ADD COLUMN is_active BOOLEAN DEFAULT TRUE; 

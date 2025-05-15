@@ -1,3 +1,15 @@
 **/__pycache__/
 *.py[cod]
 *$py.class
+
+# Python cache files
+**/__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+
+# PDF files in uploads/documents
+uploads/documents/*.pdf
+
+# Keep the directory structure
+!uploads/documents/.gitkeep 

@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from .database import db
 
 class Session(db.Model):
     __tablename__ = 'sessions'

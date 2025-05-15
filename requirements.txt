@@ -11,4 +11,7 @@ smpplib
 requests==2.25.1
 bullmq
 aiohttp==3.9.1
+celery>=5.3.0
+redis>=4.5.0
+PyMuPDF
 # flask_jwt_extended==4.5.0

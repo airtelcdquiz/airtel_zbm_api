@@ -1,5 +1,7 @@
 from flask import Blueprint
 from controllers.auth_controller import AuthController
+from routes.auth import get_user_permissions
+from controllers.auth_controller import AuthController
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,3 +16,7 @@ def verify_otp():
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     return AuthController.logout() 
+
+@auth_bp.route('/api/me/permissions', methods=['GET'])
+def get_permissions():
+    return get_user_permissions()

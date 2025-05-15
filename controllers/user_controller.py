@@ -79,3 +79,79 @@ class UserController:
 
         user = query.filter_by(id=user_id).first_or_404()
         return jsonify(user.to_dict())
+    
+    @staticmethod
+    def get_user_permissions(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        return jsonify(user.get_all_permissions())
+    
+    @staticmethod
+    def get_user_roles(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        return jsonify(user.get_all_roles())
+
+    @staticmethod
+    def add_permission(user_id, permission_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        from models.permission import Permission
+        permission = Permission.query.get(permission_id)
+        if not permission:
+            return jsonify({'error': 'Permission not found'}), 404
+        if permission in user.direct_permissions:
+            return jsonify({'message': 'Permission already assigned to user'}), 200
+        user.direct_permissions.append(permission)
+        db.session.commit()
+        return jsonify({'message': 'Permission added to user'}), 200
+
+    @staticmethod
+    def remove_permission(user_id, permission_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        from models.permission import Permission
+        permission = Permission.query.get(permission_id)
+        if not permission:
+            return jsonify({'error': 'Permission not found'}), 404
+        if permission not in user.direct_permissions:
+            return jsonify({'message': 'Permission not assigned to user'}), 200
+        user.direct_permissions.remove(permission)
+        db.session.commit()
+        return jsonify({'message': 'Permission removed from user'}), 200
+
+    @staticmethod
+    def add_role(user_id, role_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        from models.role import Role
+        role = Role.query.get(role_id)
+        if not role:
+            return jsonify({'error': 'Role not found'}), 404
+        if role in user.roles:
+            return jsonify({'message': 'Role already assigned to user'}), 200
+        user.roles.append(role)
+        db.session.commit()
+        return jsonify({'message': 'Role added to user'}), 200
+
+    @staticmethod
+    def remove_role(user_id, role_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        from models.role import Role
+        role = Role.query.get(role_id)
+        if not role:
+            return jsonify({'error': 'Role not found'}), 404
+        if role not in user.roles:
+            return jsonify({'message': 'Role not assigned to user'}), 200
+        user.roles.remove(role)
+        db.session.commit()
+        return jsonify({'message': 'Role removed from user'}), 200
+
+    @staticmethod
+    def set_superuser(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        user.is_superuser = True
+        db.session.commit()
+        return jsonify({'message': 'User set as superuser'}), 200
+
+    @staticmethod
+    def unset_superuser(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        user.is_superuser = False
+        db.session.commit()
+        return jsonify({'message': 'User unset as superuser'}), 200
