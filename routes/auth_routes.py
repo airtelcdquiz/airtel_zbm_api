@@ -15,7 +15,11 @@ def verify_otp():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    return AuthController.logout() 
+    return AuthController.logout()
+
+@auth_bp.route('/api/auth/check-session', methods=['GET'])
+def check_session():
+    return AuthController.check_session()
 
 @auth_bp.route('/api/me/permissions', methods=['GET'])
 def get_permissions():

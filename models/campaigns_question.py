@@ -13,13 +13,14 @@ class CampaignsQuestion(db.Model):
     campaign_value3 = db.Column(db.String(255), nullable=True)
     campaign_value4 = db.Column(db.String(255), nullable=True)
     campaign_answer = db.Column(db.String(255), nullable=True)
-    campaign_status = db.Column(db.Enum('0', '1', '2', '3', '4'), nullable=False, default='0')
+    campaign_status = db.Column(db.Enum('0', '1', '2', '3', '4', name='campaign_status_enum'), nullable=False, default='0')
     counter = db.Column(db.String(255), nullable=False)
-    presenter = db.Column(db.Enum('0', '1'), nullable=False, default='0')
+    presenter = db.Column(db.Enum('0', '1', name='presenter_enum'), nullable=False, default='0')
     date = db.Column(db.TIMESTAMP, nullable=False, server_default=db.text('CURRENT_TIMESTAMP'))
-    createdAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updatedAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
+    archived = db.Column(db.Boolean, nullable=False, default=False)
 
     def to_dict(self):
         return {
@@ -36,7 +37,8 @@ class CampaignsQuestion(db.Model):
             'counter': self.counter,
             'presenter': self.presenter,
             'date': self.date.isoformat() if self.date else None,
-            'createdAt': self.createdAt.isoformat() if self.createdAt else None,
-            'updatedAt': self.updatedAt.isoformat() if self.updatedAt else None,
-            'is_active': self.is_active
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'is_active': self.is_active,
+            'archived': self.archived
         } 

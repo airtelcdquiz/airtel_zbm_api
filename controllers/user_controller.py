@@ -155,3 +155,23 @@ class UserController:
         user.is_superuser = False
         db.session.commit()
         return jsonify({'message': 'User unset as superuser'}), 200
+
+    @staticmethod
+    def activate_user(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        if user.is_active:
+            return jsonify({'message': 'L\'utilisateur est déjà actif'}), 200
+        
+        user.is_active = True
+        db.session.commit()
+        return jsonify({'message': 'Utilisateur activé avec succès', 'user': user.to_dict()}), 200
+
+    @staticmethod
+    def deactivate_user(user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        if not user.is_active:
+            return jsonify({'message': 'L\'utilisateur est déjà inactif'}), 200
+        
+        user.is_active = False
+        db.session.commit()
+        return jsonify({'message': 'Utilisateur désactivé avec succès', 'user': user.to_dict()}), 200

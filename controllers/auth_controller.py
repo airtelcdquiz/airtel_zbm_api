@@ -37,7 +37,7 @@ class AuthController:
 
         # Générer l'OTP
         otp_code = AuthController.sms_service.generate_otp()
-        otp = OTP(participant_phone=phone_number, Otp=otp_code)
+        otp = OTP(participant_phone=phone_number, otp=otp_code)
         
         try:
             # Sauvegarder l'OTP dans la base de données
@@ -71,9 +71,9 @@ class AuthController:
         # Vérifier l'OTP
         otp = OTP.query.filter_by(
             participant_phone=phone_number,
-            Otp=otp_code,
+            otp=otp_code,
             is_used=False
-        ).order_by(OTP.createdAt.desc()).first()
+        ).order_by(OTP.created_at.desc()).first()
 
         if not otp or not otp.is_valid():
             return jsonify({'error': 'OTP invalide ou expiré'}), 400
@@ -82,8 +82,14 @@ class AuthController:
         otp.is_used = True
         db.session.commit()
 
-        # Générer le token JWT
+        # Vérifier si l'utilisateur existe et est actif
         user = User.query.filter_by(participant_phone=phone_number).first()
+        if not user:
+            return jsonify({'error': 'Utilisateur non trouvé'}), 404
+        if not user.is_active:
+            return jsonify({'error': 'Compte utilisateur désactivé'}), 403
+
+        # Générer le token JWT
         token = AuthController.generate_token(user.id)
 
         # Créer une nouvelle session
@@ -134,3 +140,30 @@ class AuthController:
 
             return f(current_user, *args, **kwargs)
         return decorated 
+
+    @staticmethod
+    def check_session():
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Token manquant'}), 401
+
+        try:
+            token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
+            data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
+            current_user = User.query.get(data['user_id'])
+            
+            if not current_user:
+                return jsonify({'error': 'Utilisateur non trouvé'}), 401
+                
+            # Vérifier si la session existe et est valide
+            session = Session.query.filter_by(token=token).first()
+            if not session or not session.is_valid():
+                return jsonify({'error': 'Session invalide ou expirée'}), 401
+                
+            return jsonify({
+                'valid': True,
+                'user': current_user.to_dict()
+            }), 200
+            
+        except Exception as e:
+            return jsonify({'error': 'Session invalide'}), 401 

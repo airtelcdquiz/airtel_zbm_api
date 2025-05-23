@@ -59,3 +59,13 @@ def set_superuser(current_user, user_id):
 @AuthController.token_required
 def unset_superuser(current_user, user_id):
     return UserController.unset_superuser(user_id)
+
+@user_bp.route('/api/users/<int:user_id>/activate', methods=['POST'])
+@AuthController.token_required
+def activate_user(current_user, user_id):
+    return UserController.activate_user(user_id)
+
+@user_bp.route('/api/users/<int:user_id>/deactivate', methods=['POST'])
+@AuthController.token_required
+def deactivate_user(current_user, user_id):
+    return UserController.deactivate_user(user_id)

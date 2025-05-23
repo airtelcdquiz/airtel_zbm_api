@@ -10,7 +10,7 @@ class CampaignsQuestionController:
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
-        query = CampaignsQuestion.query
+        query = CampaignsQuestion.query.filter_by(archived=False)
         if search:
             search_term = f"%{search}%"
             query = query.filter(
@@ -31,6 +31,33 @@ class CampaignsQuestionController:
         })
 
     @staticmethod
+    def get_archived_questions():
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        search = request.args.get('search', '')
+
+        query = CampaignsQuestion.query.filter_by(archived=True)
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    CampaignsQuestion.campaign_question.like(search_term),
+                    CampaignsQuestion.campaign_value1.like(search_term),
+                    CampaignsQuestion.campaign_value2.like(search_term),
+                    CampaignsQuestion.campaign_value3.like(search_term),
+                    CampaignsQuestion.campaign_value4.like(search_term)
+                )
+            )
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        return jsonify({
+            'questions': [q.to_dict() for q in pagination.items],
+            'total': pagination.total,
+            'pages': pagination.pages,
+            'current_page': page
+        })
+
+
+    @staticmethod
     def create_question():
         data = request.get_json()
         if not data or not data.get('campaign_question') or not data.get('campaign_answer'):
@@ -42,7 +69,8 @@ class CampaignsQuestionController:
             campaign_value3=data.get('campaign_value3'),
             campaign_value4=data.get('campaign_value4'),
             campaign_answer=data['campaign_answer'],
-            is_active=data.get('is_active', True)
+            is_active=data.get('is_active', False),
+            archived=data.get('archived', False)
         )
         try:
             db.session.add(new_question)
@@ -65,7 +93,7 @@ class CampaignsQuestionController:
         if not question:
             return jsonify({'error': 'Question non trouvée'}), 404
         data = request.get_json()
-        for field in ['campaign_question', 'campaign_value1', 'campaign_value2', 'campaign_value3', 'campaign_value4', 'campaign_answer', 'is_active']:
+        for field in ['campaign_question', 'campaign_value1', 'campaign_value2', 'campaign_value3', 'campaign_value4', 'campaign_answer', 'is_active', 'archived']:
             if field in data:
                 setattr(question, field, data[field])
         try:
@@ -94,7 +122,7 @@ class CampaignsQuestionController:
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
-        query = CampaignsQuestion.query.filter_by(is_active=True)
+        query = CampaignsQuestion.query.filter_by(is_active=True).filter_by(archived=False)
         if search:
             search_term = f"%{search}%"
             query = query.filter(
@@ -120,7 +148,7 @@ class CampaignsQuestionController:
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
-        query = CampaignsQuestion.query.filter_by(is_active=False)
+        query = CampaignsQuestion.query.filter_by(is_active=False).filter_by(archived=False)
         if search:
             search_term = f"%{search}%"
             query = query.filter(

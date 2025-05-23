@@ -12,10 +12,13 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 # --- FONCTION D'APPEL À GEMINI ---
 def generate_questions_from_text(page_text):
     prompt = f"""
-Tu es un assistant éducatif. Génère au moins 50 questions à choix multiples de culture générale sur la RDC basées uniquement sur ce texte :
+Tu es un assistant éducatif. Génère des questions à choix multiples de culture générale unique sur les provinces de la République Démocratique du Congo et rien d'autres, 
+Les questions doivent etre uniquement pour des niveaux de classe de primaire et secondaire, 6eme, 5eme, 4eme, 3eme, 2eme, 1er et terminale, voici le texte :
 
 {page_text}
 
+
+Si dans le texte, tu ne trouves pas des questions pertinentes sur les provinces de la République Démocratique du Congo, retourne un tableau vide.
 Pour chaque question, retourne un objet JSON avec :
 - question
 - assertions (4 options)

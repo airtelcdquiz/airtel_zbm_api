@@ -11,6 +11,7 @@ from routes.permission_routes import permission_bp
 from routes.campaigns_question_routes import campaigns_question_bp
 from routes.statistics_routes import statistics_bp
 from routes.document_routes import document_bp
+from routes.attached_schools_routes import attached_schools_bp
 
 def create_app():
     app = Flask(__name__)
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(campaigns_question_bp)
     app.register_blueprint(statistics_bp)
     app.register_blueprint(document_bp)
+    app.register_blueprint(attached_schools_bp)
     
     return app
 

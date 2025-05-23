@@ -1,5 +1,5 @@
 from celery import Celery, chain
-from celery.signals import task_success, task_failure
+from celery.signals import task_success, task_failure, worker_ready
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
@@ -11,6 +11,7 @@ import json
 import requests
 import traceback
 import logging
+from sqlalchemy import or_
 
 # Configuration du logging
 logging.basicConfig(
@@ -160,21 +161,25 @@ def process_document(self, document_id):
                     # Sauvegarder les questions dans la base de données
                     logger.info(f"Sauvegarde de {len(questions)} questions pour la page {i+1}")
                     for q in questions:
-                        campaign_question = CampaignsQuestion(
-                            campaign_question=q['question'],
-                            campaign_value1=q['assertions'][0],
-                            campaign_value2=q['assertions'][1],
-                            campaign_value3=q['assertions'][2],
-                            campaign_value4=q['assertions'][3],
-                            campaign_answer=q['reponse'] + 1,
-                            campaign_question_type='special-question',
-                            campaign_status='0',
-                            counter='0',
-                            presenter='0',
-                            is_active=False
-                        )
-                        db.add(campaign_question)
-                        total_questions += 1
+                        try:
+                            campaign_question = CampaignsQuestion(
+                                campaign_question=q['question'],
+                                campaign_value1=q['assertions'][0],
+                                campaign_value2=q['assertions'][1],
+                                campaign_value3=q['assertions'][2],
+                                campaign_value4=q['assertions'][3],
+                                campaign_answer=q['reponse'] + 1,
+                                campaign_question_type='special-question',
+                                campaign_status='0',
+                                counter='0',
+                                presenter='0',
+                                is_active=False
+                            )
+                            db.add(campaign_question)
+                            total_questions += 1
+                        except Exception as quest_error:
+                            logger.error(f"Erreur lors du traitement d'une question sur la page {i+1}: {str(quest_error)}")
+                            continue
                     
                     document.current_page = i + 1
                     db.commit()
@@ -184,8 +189,8 @@ def process_document(self, document_id):
                     error_msg = f"Erreur sur la page {i+1}: {str(page_error)}"
                     logger.error(error_msg)
                     logger.error(f"Stacktrace: {traceback.format_exc()}")
-                    document.processing_status = 'failed'
-                    document.processing_error = error_msg
+                    # On continue avec la page suivante au lieu de lever l'exception
+                    document.current_page = i + 1
                     document.processing_result = {
                         'error_page': i + 1,
                         'error_details': str(page_error),
@@ -193,7 +198,7 @@ def process_document(self, document_id):
                         'total_questions_generated': total_questions
                     }
                     db.commit()
-                    raise
+                    continue
             
             # Traitement réussi
             logger.info(f"Traitement terminé avec succès: {total_questions} questions générées")
@@ -205,6 +210,9 @@ def process_document(self, document_id):
                 'completion_time': datetime.utcnow().isoformat()
             }
             db.commit()
+            
+            # Vérifier s'il y a d'autres documents en attente
+            check_pending_documents.delay()
             
             return {
                 'status': 'success',
@@ -244,6 +252,109 @@ def process_document(self, document_id):
     finally:
         db.close()
         logger.info("Session de base de données fermée")
+
+@celery.task(name='check_pending_documents')
+def check_pending_documents():
+    """Vérifie s'il y a des documents en attente ou en échec et les traite"""
+    logger.info("Vérification des documents en attente et en échec")
+    db = SessionLocal()
+    try:
+        # Vérifier s'il y a un document en cours de traitement
+        processing_doc = db.query(Document).filter(
+            Document.processing_status == 'processing'
+        ).first()
+        
+        if processing_doc:
+            logger.info(f"Un document ({processing_doc.id}) est déjà en cours de traitement")
+            return
+        
+        # Chercher le prochain document en attente
+        pending_doc = db.query(Document).filter(
+            Document.processing_status == 'pending'
+        ).order_by(Document.created_at.asc()).first()
+        
+        if pending_doc:
+            logger.info(f"Lancement du traitement du document en attente {pending_doc.id}")
+            process_document.delay(pending_doc.id)
+            return
+            
+        # Si aucun document en attente, vérifier les documents en échec
+        failed_docs = db.query(Document).filter(
+            Document.processing_status == 'failed',
+            Document.retry_count < MAX_RETRIES,
+            or_(
+                Document.last_retry_at == None,
+                Document.last_retry_at < datetime.utcnow() - timedelta(seconds=RETRY_DELAY)
+            )
+        ).order_by(Document.created_at.asc()).all()
+        
+        if failed_docs:
+            logger.info(f"Trouvé {len(failed_docs)} documents en échec à retenter")
+            for doc in failed_docs:
+                logger.info(f"Relancement du traitement du document en échec {doc.id}")
+                process_document.delay(doc.id)
+        else:
+            logger.info("Aucun document en attente ou en échec à traiter")
+            
+    except Exception as e:
+        logger.error(f"Erreur lors de la vérification des documents: {str(e)}")
+        logger.error(f"Stacktrace: {traceback.format_exc()}")
+    finally:
+        db.close()
+@celery.task(name='check_processing_documents')
+def check_processing_documents():
+    """Vérifie s'il y a des documents en cours de traitement au démarrage du worker"""
+    logger.info("Vérification des documents en cours de traitement au démarrage")
+    db = SessionLocal()
+    try:
+        # Chercher les documents en cours de traitement
+        processing_docs = db.query(Document).filter(
+            Document.processing_status == 'processing'
+        ).all()
+        
+        for doc in processing_docs:
+            logger.info(f"Reprise du traitement du document {doc.id}")
+            process_document.delay(doc.id)
+
+        # Chercher le prochain document en attente
+        pending_doc = db.query(Document).filter(
+            Document.processing_status == 'pending'
+        ).order_by(Document.created_at.asc()).first()
+        
+        if pending_doc:
+            logger.info(f"Lancement du traitement du document en attente {pending_doc.id}")
+            process_document.delay(pending_doc.id)
+            return
+            
+        # Si aucun document en attente, vérifier les documents en échec
+        failed_docs = db.query(Document).filter(
+            Document.processing_status == 'failed',
+            Document.retry_count < MAX_RETRIES,
+            or_(
+                Document.last_retry_at == None,
+                Document.last_retry_at < datetime.utcnow() - timedelta(seconds=RETRY_DELAY)
+            )
+        ).order_by(Document.created_at.asc()).all()
+        
+        if failed_docs:
+            logger.info(f"Trouvé {len(failed_docs)} documents en échec à retenter")
+            for doc in failed_docs:
+                logger.info(f"Relancement du traitement du document en échec {doc.id}")
+                process_document.delay(doc.id)
+        else:
+            logger.info("Aucun document à traiter. Planification d'une nouvelle vérification dans 10 minutes")
+            check_processing_documents.apply_async(countdown=600)  # 600 secondes = 10 minutes
+            
+    except Exception as e:
+        logger.error(f"Erreur lors de la vérification des documents en cours de traitement: {str(e)}")
+        logger.error(f"Stacktrace: {traceback.format_exc()}")
+    finally:
+        db.close()
+
+# Appeler check_processing_documents au démarrage du worker
+@worker_ready.connect
+def at_start(sender, **kwargs):
+    check_processing_documents.delay()
 
 @task_success.connect
 def task_success_handler(sender=None, **kwargs):

@@ -38,3 +38,8 @@ def get_active_questions(current_user):
 @AuthController.token_required
 def get_inactive_questions(current_user):
     return CampaignsQuestionController.get_inactive_questions() 
+
+@campaigns_question_bp.route('/api/quiz/archived', methods=['GET'])
+@AuthController.token_required
+def get_archived_questions(current_user):
+    return CampaignsQuestionController.get_archived_questions() 

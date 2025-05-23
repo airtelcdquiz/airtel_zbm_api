@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql://user:password@localhost/dbname')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://trivia_user:Adm!n2024$@41.243.25.144/airtel_trivia_v1')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = True
     HOST = '0.0.0.0'

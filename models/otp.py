@@ -6,15 +6,15 @@ class OTP(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     participant_phone = db.Column(db.String(255), nullable=False)
-    Otp = db.Column(db.String(255), nullable=False)
-    createdAt = db.Column(db.DateTime, default=datetime.utcnow)
-    updatedAt = db.Column(db.DateTime, default=datetime.utcnow)
+    otp = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=False)
     is_used = db.Column(db.Boolean, default=False)
 
-    def __init__(self, participant_phone, Otp):
+    def __init__(self, participant_phone, otp):
         self.participant_phone = participant_phone
-        self.Otp = Otp
+        self.otp = otp
         self.expires_at = datetime.utcnow() + timedelta(minutes=5)  # OTP valide pendant 5 minutes
 
     def is_valid(self):
@@ -24,9 +24,9 @@ class OTP(db.Model):
         return {
             'id': self.id,
             'participant_phone': self.participant_phone,
-            'Otp': self.Otp,
-            'createdAt': self.createdAt.isoformat(),
-            'updatedAt': self.updatedAt.isoformat(),
+            'otp': self.otp,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
             'expires_at': self.expires_at.isoformat(),
             'is_used': self.is_used
         } 
