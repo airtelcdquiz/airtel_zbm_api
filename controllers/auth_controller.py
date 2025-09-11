@@ -75,7 +75,10 @@ class AuthController:
             is_used=False
         ).order_by(OTP.created_at.desc()).first()
 
-        if not otp or not otp.is_valid():
+        if not otp :
+            return jsonify({'error': 'OTP non trouvé'}), 400
+
+        if not otp.is_valid():
             return jsonify({'error': 'OTP invalide ou expiré'}), 400
 
         # Marquer l'OTP comme utilisé

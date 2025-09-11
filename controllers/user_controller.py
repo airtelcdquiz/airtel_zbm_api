@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from models.user import User, db
 from sqlalchemy import or_
+from models.attached_school import AttachedSchool
 
 class UserController:
     @staticmethod
@@ -10,8 +11,18 @@ class UserController:
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
+        # Récupérer l'utilisateur connecté
+        # current_user = request.current_user
+
         # Construire la requête de base
         query = User.query
+
+        # Si l'utilisateur n'est pas superadmin et n'a pas le rôle admin, filtrer par les écoles attachées
+        # if not current_user.is_superuser and 'admin' not in [role.name for role in current_user.roles]:
+        #     # Récupérer les IDs des écoles attachées
+        #     attached_school_ids = [attached_school.school_id for attached_school in current_user.attached_schools_association]
+        #     # Filtrer les utilisateurs par les écoles attachées
+        #     query = query.filter(User.school_id.in_(attached_school_ids))
 
         # Ajouter la recherche si un terme est fourni
         if search:
