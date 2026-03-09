@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from models.user import User
-from models.QuestionResponse import QuestionResponse
+from models.question_responses import QuestionResponse
 from models.school import School
 from sqlalchemy import func, or_
 from datetime import datetime
