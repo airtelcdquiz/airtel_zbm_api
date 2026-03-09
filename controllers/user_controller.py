@@ -20,19 +20,19 @@ class UserController:
         # Si l'utilisateur n'est pas superadmin et n'a pas le rôle admin, filtrer par les écoles attachées
         # if not current_user.is_superuser and 'admin' not in [role.name for role in current_user.roles]:
         #     # Récupérer les IDs des écoles attachées
-        #     attached_school_ids = [attached_school.school_id for attached_school in current_user.attached_schools_association]
+        #     attached_codes = [attached_school.code for attached_school in current_user.attached_schools_association]
         #     # Filtrer les utilisateurs par les écoles attachées
-        #     query = query.filter(User.school_id.in_(attached_school_ids))
+        #     query = query.filter(User.code.in_(attached_codes))
 
         # Ajouter la recherche si un terme est fourni
         if search:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    User.participant_full_name.like(search_term),
-                    User.participant_phone.like(search_term),
-                    User.participant_category.like(search_term),
-                    User.participant_class.like(search_term)
+                    User.name.like(search_term),
+                    User.phone_number.like(search_term),
+                    User.school_level.like(search_term),
+                    User.school_class.like(search_term)
                 )
             )
 
@@ -50,14 +50,14 @@ class UserController:
     def create_user():
         data = request.get_json()
         
-        if not data or not data.get('participant_phone') or not data.get('participant_full_name') or not data.get('participant_category') or not data.get('participant_class'):
+        if not data or not data.get('phone_number') or not data.get('name') or not data.get('school_level') or not data.get('school_class'):
             return jsonify({'error': 'Données invalides'}), 400
         
         new_user = User(
-            participant_phone=data['participant_phone'],
-            participant_full_name=data['participant_full_name'],
-            participant_category=data['participant_category'],
-            participant_class=data['participant_class']
+            phone_number=data['phone_number'],
+            name=data['name'],
+            school_level=data['school_level'],
+            school_class=data['school_class']
         )
         
         try:
@@ -69,7 +69,7 @@ class UserController:
             return jsonify({'error': str(e)}), 400
 
     @staticmethod
-    def get_user(user_id):
+    def get_user(phone_number):
         # Récupérer les paramètres de recherche
         search = request.args.get('search', '')
 
@@ -81,29 +81,29 @@ class UserController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    User.participant_full_name.like(search_term),
-                    User.participant_phone.like(search_term),
-                    User.participant_category.like(search_term),
-                    User.participant_class.like(search_term)
+                    User.name.like(search_term),
+                    User.phone_number.like(search_term),
+                    User.school_level.like(search_term),
+                    User.school_class.like(search_term)
                 )
             )
 
-        user = query.filter_by(id=user_id).first_or_404()
+        user = query.filter_by(id=phone_number).first_or_404()
         return jsonify(user.to_dict())
     
     @staticmethod
-    def get_user_permissions(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def get_user_permissions(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         return jsonify(user.get_all_permissions())
     
     @staticmethod
-    def get_user_roles(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def get_user_roles(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         return jsonify(user.get_all_roles())
 
     @staticmethod
-    def add_permission(user_id, permission_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def add_permission(phone_number, permission_id):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         from models.permission import Permission
         permission = Permission.query.get(permission_id)
         if not permission:
@@ -115,8 +115,8 @@ class UserController:
         return jsonify({'message': 'Permission added to user'}), 200
 
     @staticmethod
-    def remove_permission(user_id, permission_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def remove_permission(phone_number, permission_id):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         from models.permission import Permission
         permission = Permission.query.get(permission_id)
         if not permission:
@@ -128,8 +128,8 @@ class UserController:
         return jsonify({'message': 'Permission removed from user'}), 200
 
     @staticmethod
-    def add_role(user_id, role_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def add_role(phone_number, role_id):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         from models.role import Role
         role = Role.query.get(role_id)
         if not role:
@@ -141,8 +141,8 @@ class UserController:
         return jsonify({'message': 'Role added to user'}), 200
 
     @staticmethod
-    def remove_role(user_id, role_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def remove_role(phone_number, role_id):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         from models.role import Role
         role = Role.query.get(role_id)
         if not role:
@@ -154,22 +154,22 @@ class UserController:
         return jsonify({'message': 'Role removed from user'}), 200
 
     @staticmethod
-    def set_superuser(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def set_superuser(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         user.is_superuser = True
         db.session.commit()
         return jsonify({'message': 'User set as superuser'}), 200
 
     @staticmethod
-    def unset_superuser(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def unset_superuser(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         user.is_superuser = False
         db.session.commit()
         return jsonify({'message': 'User unset as superuser'}), 200
 
     @staticmethod
-    def activate_user(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def activate_user(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         if user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà actif'}), 200
         
@@ -178,8 +178,8 @@ class UserController:
         return jsonify({'message': 'Utilisateur activé avec succès', 'user': user.to_dict()}), 200
 
     @staticmethod
-    def deactivate_user(user_id):
-        user = User.query.filter_by(id=user_id).first_or_404()
+    def deactivate_user(phone_number):
+        user = User.query.filter_by(id=phone_number).first_or_404()
         if not user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà inactif'}), 200
         

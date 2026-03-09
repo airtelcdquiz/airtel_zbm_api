@@ -15,11 +15,11 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.campaign_question.like(search_term),
-                    CampaignsQuestion.campaign_value1.like(search_term),
-                    CampaignsQuestion.campaign_value2.like(search_term),
-                    CampaignsQuestion.campaign_value3.like(search_term),
-                    CampaignsQuestion.campaign_value4.like(search_term)
+                    CampaignsQuestion.question.like(search_term),
+                    CampaignsQuestion.option_1.like(search_term),
+                    CampaignsQuestion.option_2.like(search_term),
+                    CampaignsQuestion.option_3.like(search_term),
+                    CampaignsQuestion.option_4.like(search_term)
                 )
             )
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -41,11 +41,11 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.campaign_question.like(search_term),
-                    CampaignsQuestion.campaign_value1.like(search_term),
-                    CampaignsQuestion.campaign_value2.like(search_term),
-                    CampaignsQuestion.campaign_value3.like(search_term),
-                    CampaignsQuestion.campaign_value4.like(search_term)
+                    CampaignsQuestion.question.like(search_term),
+                    CampaignsQuestion.option_1.like(search_term),
+                    CampaignsQuestion.option_2.like(search_term),
+                    CampaignsQuestion.option_3.like(search_term),
+                    CampaignsQuestion.option_4.like(search_term)
                 )
             )
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -60,14 +60,14 @@ class CampaignsQuestionController:
     @staticmethod
     def create_question():
         data = request.get_json()
-        if not data or not data.get('campaign_question') or not data.get('campaign_answer'):
+        if not data or not data.get('question') or not data.get('campaign_answer'):
             return jsonify({'error': 'Données invalides'}), 400
         new_question = CampaignsQuestion(
-            campaign_question=data['campaign_question'],
-            campaign_value1=data.get('campaign_value1'),
-            campaign_value2=data.get('campaign_value2'),
-            campaign_value3=data.get('campaign_value3'),
-            campaign_value4=data.get('campaign_value4'),
+            question=data['question'],
+            option_1=data.get('option_1'),
+            option_2=data.get('option_2'),
+            option_3=data.get('option_3'),
+            option_4=data.get('option_4'),
             campaign_answer=data['campaign_answer'],
             is_active=data.get('is_active', False),
             archived=data.get('archived', False)
@@ -93,7 +93,7 @@ class CampaignsQuestionController:
         if not question:
             return jsonify({'error': 'Question non trouvée'}), 404
         data = request.get_json()
-        for field in ['campaign_question', 'campaign_value1', 'campaign_value2', 'campaign_value3', 'campaign_value4', 'campaign_answer', 'is_active', 'archived']:
+        for field in ['question', 'option_1', 'option_2', 'option_3', 'option_4', 'campaign_answer', 'is_active', 'archived']:
             if field in data:
                 setattr(question, field, data[field])
         try:
@@ -127,11 +127,11 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.campaign_question.like(search_term),
-                    CampaignsQuestion.campaign_value1.like(search_term),
-                    CampaignsQuestion.campaign_value2.like(search_term),
-                    CampaignsQuestion.campaign_value3.like(search_term),
-                    CampaignsQuestion.campaign_value4.like(search_term)
+                    CampaignsQuestion.question.like(search_term),
+                    CampaignsQuestion.option_1.like(search_term),
+                    CampaignsQuestion.option_2.like(search_term),
+                    CampaignsQuestion.option_3.like(search_term),
+                    CampaignsQuestion.option_4.like(search_term)
                 )
             )
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -153,11 +153,11 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.campaign_question.like(search_term),
-                    CampaignsQuestion.campaign_value1.like(search_term),
-                    CampaignsQuestion.campaign_value2.like(search_term),
-                    CampaignsQuestion.campaign_value3.like(search_term),
-                    CampaignsQuestion.campaign_value4.like(search_term)
+                    CampaignsQuestion.question.like(search_term),
+                    CampaignsQuestion.option_1.like(search_term),
+                    CampaignsQuestion.option_2.like(search_term),
+                    CampaignsQuestion.option_3.like(search_term),
+                    CampaignsQuestion.option_4.like(search_term)
                 )
             )
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)

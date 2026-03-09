@@ -106,7 +106,7 @@ class AttachedSchoolsController:
     @staticmethod
     def get_user_attached_schools(current_user):
         try:
-            attached_schools = AttachedSchool.query.filter_by(user_id=current_user.id).all()
+            attached_schools = AttachedSchool.query.filter_by(phone_number=current_user.phone_number).all()
             return jsonify({
                 'status': 'success',
                 'data': [school.to_dict() for school in attached_schools]

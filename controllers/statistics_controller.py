@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from models.user import User
-from models.specialUserAnswerSubmissions import SpecialUserAnswerSubmissions
+from models.QuestionResponse import QuestionResponse
 from models.school import School
 from sqlalchemy import func, or_
 from datetime import datetime
@@ -27,11 +27,11 @@ class StatisticsController:
 
         # Construire la requête
         query = User.query.join(
-            School, User.school_id == School.id
+            School, User.code == School.id
         ).outerjoin(
-            SpecialUserAnswerSubmissions,
-            (User.id == SpecialUserAnswerSubmissions.user_id) &
-            (SpecialUserAnswerSubmissions.created_at.between(start_date, end_date) if start_date and end_date else True)
+            QuestionResponse,
+            (user.phone_number == QuestionResponse.phone_number) &
+            (QuestionResponse.created_at.between(start_date, end_date) if start_date and end_date else True)
         )
 
         # Ajouter la recherche si spécifiée
@@ -44,19 +44,19 @@ class StatisticsController:
             )
 
         query = query.with_entities(
-            func.coalesce(func.sum(SpecialUserAnswerSubmissions.points), 0).label('points'),
+            func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
             User.participant_phone,
             User.participant_full_name,
-            School.idcode.label('school_code'),
+            School.code.label('school_code'),
             School.schoolname
         ).group_by(
-            User.id,
+            user.phone_number,
             User.participant_phone,
             User.participant_full_name,
-            School.idcode,
+            School.code,
             School.schoolname
         ).order_by(
-            func.coalesce(func.sum(SpecialUserAnswerSubmissions.points), 0).desc()
+            func.coalesce(func.sum(QuestionResponse.points), 0).desc()
         )
 
         # Paginer les résultats

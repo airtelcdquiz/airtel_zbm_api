@@ -22,11 +22,11 @@ logger = logging.getLogger('document_worker')
 
 # Configuration Celery
 celery = Celery('document_worker',
-                broker=os.getenv('REDIS_URL', 'redis://41.243.25.144:6379'),
-                backend=os.getenv('REDIS_URL', 'redis://41.243.25.144:6379'))
+                broker=os.getenv('REDIS_URL', 'redis://ussd-redis:6379'),
+                backend=os.getenv('REDIS_URL', 'redis://ussd-redis:6379'))
 
 # Configuration de la base de données
-DATABASE_URL = os.getenv('DATABASE_URL', 'mysql://trivia_user:Adm!n2024$@41.243.25.144/airtel_trivia_test_backup')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://ussd:ussd@ussd-postgres/ussd')
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 

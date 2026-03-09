@@ -6,13 +6,13 @@ class Session(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(255), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    phone_number = db.Column(db.String(255), nullable=False)
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
     expire_at = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, token, user_id):
+    def __init__(self, token, phone_number):
         self.token = token
-        self.user_id = user_id
+        self.phone_number = phone_number
         self.expire_at = datetime.utcnow() + timedelta(days=1)  # Session valide pendant 1 jour
 
     def is_valid(self):
@@ -22,7 +22,7 @@ class Session(db.Model):
         return {
             'id': self.id,
             'token': self.token,
-            'user_id': self.user_id,
+            'phone_number': self.phone_number,
             'create_at': self.create_at.isoformat(),
             'expire_at': self.expire_at.isoformat()
         } 

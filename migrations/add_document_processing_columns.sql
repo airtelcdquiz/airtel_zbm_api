@@ -6,11 +6,11 @@ ALTER TABLE documents
     ADD COLUMN current_page INT DEFAULT 0,
     ADD COLUMN total_pages INT,
     ADD COLUMN retry_count INT DEFAULT 0,
-    ADD COLUMN last_retry_at DATETIME,
+    ADD COLUMN last_retry_at TIMESTAMPTZ,
     ADD COLUMN processing_result JSON,
     ADD COLUMN processing_status VARCHAR(20) NOT NULL DEFAULT 'pending',
     ADD COLUMN processing_error TEXT,
-    ADD COLUMN processed_at DATETIME;
+    ADD COLUMN processed_at TIMESTAMPTZ;
 
 -- Création d'un index sur processing_status pour optimiser les requêtes de statut
 CREATE INDEX idx_documents_processing_status ON documents(processing_status);

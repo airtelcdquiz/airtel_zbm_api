@@ -14,17 +14,17 @@ def get_schools(current_user):
 def create_school(current_user):
     return SchoolController.create_school()
 
-@school_bp.route('/api/schools/<int:school_id>', methods=['GET'])
+@school_bp.route('/api/schools/<int:code>', methods=['GET'])
 @AuthController.token_required
-def get_school(current_user, school_id):
-    return SchoolController.get_school(school_id)
+def get_school(current_user, code):
+    return SchoolController.get_school(code)
 
-@school_bp.route('/api/schools/<int:school_id>', methods=['PUT'])
+@school_bp.route('/api/schools/<int:code>', methods=['PUT'])
 @AuthController.token_required
-def update_school(current_user, school_id):
-    return SchoolController.update_school(school_id)
+def update_school(current_user, code):
+    return SchoolController.update_school(code)
 
-@school_bp.route('/api/schools/<int:school_id>', methods=['DELETE'])
+@school_bp.route('/api/schools/<int:code>', methods=['DELETE'])
 @AuthController.token_required
-def delete_school(current_user, school_id):
-    return SchoolController.delete_school(school_id) 
+def delete_school(current_user, code):
+    return SchoolController.delete_school(code) 

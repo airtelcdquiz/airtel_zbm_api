@@ -5,8 +5,8 @@ class AttachedSchool(db.Model):
     __tablename__ = 'attached_schools'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    school_id = db.Column(db.Integer, db.ForeignKey('schools.id', ondelete='CASCADE'), nullable=False)
+    phone_number = db.Column(db.String(255), db.ForeignKey('users.phone_number', ondelete='CASCADE'), nullable=False)
+    code = db.Column(db.String(255), db.ForeignKey('schools.code', ondelete='CASCADE'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -17,8 +17,8 @@ class AttachedSchool(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
-            'school_id': self.school_id,
+            'phone_number': self.phone_number,
+            'code': self.code,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         } 

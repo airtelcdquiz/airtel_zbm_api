@@ -17,10 +17,10 @@ def create_sessions_table():
         CREATE TABLE IF NOT EXISTS sessions (
             id INT AUTO_INCREMENT PRIMARY KEY,
             token VARCHAR(255) NOT NULL UNIQUE,
-            user_id INT NOT NULL,
+            phone_number INT NOT NULL,
             create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             expire_at DATETIME NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (phone_number) REFERENCES users(id)
         );
         """
 

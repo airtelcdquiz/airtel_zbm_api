@@ -1,0 +1,42 @@
+version: '3.8'
+
+services: 
+
+  airtel_quiz_zbm_school_worker:
+    container_name: airtel_quiz_zbm_school_worker
+    image: python:3.9
+    working_dir: /app
+    command: >
+      bash -c "pip install -r requirements.txt && 
+      celery -A worker.document_worker worker --loglevel=info"
+    volumes:
+      - ./:/app
+    environment:
+      - DATABASE_URL=postgresql://ussd:ussd@ussd-postgres/ussd
+      - REDIS_URL=redis://ussd-redis:6379
+      - PORT=3001
+    networks:
+      - dokploy-network
+  
+  airtel_quiz_zbm_school_api:
+    container_name: airtel_quiz_zbm_school_api
+    image: python:3.9
+    tty: true
+    working_dir: /app
+    volumes:
+      - ./:/app
+    expose:
+      - 5000
+    command: >
+      bash -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DATABASE_URL=postgresql://ussd:ussd@ussd-postgres/ussd
+    networks:
+      - dokploy-network
+
+volumes:
+  postgres_data:
+
+networks:
+  dokploy-network:
+    external: true  # Use the previously created shared network

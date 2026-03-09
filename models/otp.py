@@ -5,15 +5,15 @@ class OTP(db.Model):
     __tablename__ = 'otps'
     
     id = db.Column(db.Integer, primary_key=True)
-    participant_phone = db.Column(db.String(255), nullable=False)
+    phone_number = db.Column(db.String(255), nullable=False)
     otp = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=False)
     is_used = db.Column(db.Boolean, default=False)
 
-    def __init__(self, participant_phone, otp):
-        self.participant_phone = participant_phone
+    def __init__(self, phone_number, otp):
+        self.phone_number = phone_number
         self.otp = otp
         self.expires_at = datetime.utcnow() + timedelta(minutes=5)  # OTP valide pendant 5 minutes
 
@@ -23,7 +23,7 @@ class OTP(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'participant_phone': self.participant_phone,
+            'phone_number': self.phone_number,
             'otp': self.otp,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),

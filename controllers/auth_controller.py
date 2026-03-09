@@ -15,9 +15,9 @@ class AuthController:
     sms_service = SMSService()
 
     @staticmethod
-    def generate_token(user_id):
+    def generate_token(phone_number):
         payload = {
-            'user_id': user_id,
+            'phone_number': phone_number,
             'exp': datetime.utcnow() + timedelta(days=1)  # Token valide pendant 1 jour
         }
         return jwt.encode(payload, AuthController.SECRET_KEY, algorithm='HS256')
@@ -31,7 +31,7 @@ class AuthController:
             return jsonify({'error': 'Numéro de téléphone requis'}), 400
 
         # Vérifier si l'utilisateur existe
-        user = User.query.filter_by(participant_phone=phone_number).first()
+        user = User.query.filter_by(phone_number=phone_number).first()
         if not user:
             return jsonify({'error': 'Utilisateur non trouvé'}), 404
 
@@ -93,10 +93,10 @@ class AuthController:
             return jsonify({'error': 'Compte utilisateur désactivé'}), 403
 
         # Générer le token JWT
-        token = AuthController.generate_token(user.id)
+        token = AuthController.generate_token(user.phone_number)
 
         # Créer une nouvelle session
-        session = Session(token=token, user_id=user.id)
+        session = Session(token=token, phone_number=user.phone_number)
         db.session.add(session)
         db.session.commit()
 
@@ -135,7 +135,7 @@ class AuthController:
             try:
                 token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
                 data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
-                current_user = User.query.get(data['user_id'])
+                current_user = User.query.get(data['phone_number'])
                 if not current_user:
                     return jsonify({'error': 'Utilisateur non trouvé'}), 401
             except Exception as e:
@@ -153,7 +153,7 @@ class AuthController:
         try:
             token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
             data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
-            current_user = User.query.get(data['user_id'])
+            current_user = User.query.get(data['phone_number'])
             
             if not current_user:
                 return jsonify({'error': 'Utilisateur non trouvé'}), 401

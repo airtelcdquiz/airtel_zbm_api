@@ -12,7 +12,7 @@ def get_user_by_auth():
     try:
         token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
         data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
-        current_user = User.query.get(data['user_id'])
+        current_user = User.query.get(data['phone_number'])
         if not current_user:
             return None
         return current_user

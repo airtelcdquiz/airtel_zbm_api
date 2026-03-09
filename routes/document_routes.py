@@ -21,7 +21,7 @@ def upload_document(current_user):
     name = request.form.get('name', file.filename)
     description = request.form.get('description', '')
 
-    document, error = create_document(file, name, description, current_user.id)
+    document, error = create_document(file, name, description, current_user.phone_number)
     if error:
         return jsonify({'error': error}), 400
 
@@ -78,7 +78,7 @@ def list_user_documents(current_user):
         per_page = 10
 
     result = get_user_documents(
-        user_id=current_user.id,
+        phone_number=current_user.phone_number,
         page=page,
         per_page=per_page,
         sort_by=sort_by,

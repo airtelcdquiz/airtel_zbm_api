@@ -12,7 +12,7 @@ ALLOWED_EXTENSIONS = {'pdf'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def create_document(file, name, description, user_id):
+def create_document(file, name, description, phone_number):
     if not file or not allowed_file(file.filename):
         return None, "Format de fichier non autorisé. Seuls les fichiers PDF sont acceptés."
 
@@ -35,7 +35,7 @@ def create_document(file, name, description, user_id):
             description=description,
             file_path=file_path,
             file_size=os.path.getsize(file_path),
-            uploaded_by=user_id,
+            uploaded_by=phone_number,
             processing_status='pending'  # Nouveau statut
         )
 
@@ -104,12 +104,12 @@ def get_all_documents(page=1, per_page=10, sort_by='created_at', sort_order='des
         'has_prev': pagination.has_prev
     }
 
-def get_user_documents(user_id, page=1, per_page=10, sort_by='created_at', sort_order='desc', search=None):
+def get_user_documents(phone_number, page=1, per_page=10, sort_by='created_at', sort_order='desc', search=None):
     """
     Récupère les documents d'un utilisateur avec pagination, tri et recherche
     
     Args:
-        user_id (int): ID de l'utilisateur
+        phone_number (int): ID de l'utilisateur
         page (int): Numéro de la page (commence à 1)
         per_page (int): Nombre d'éléments par page
         sort_by (str): Colonne de tri ('created_at', 'name', 'file_size')
@@ -125,7 +125,7 @@ def get_user_documents(user_id, page=1, per_page=10, sort_by='created_at', sort_
         sort_by = 'created_at'
     
     # Construction de la requête de base avec filtre utilisateur
-    query = Document.query.filter_by(uploaded_by=user_id)
+    query = Document.query.filter_by(uploaded_by=phone_number)
     
     # Application de la recherche si un terme est fourni
     if search:

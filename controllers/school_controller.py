@@ -19,7 +19,7 @@ class SchoolController:
             query = query.filter(
                 or_(
                     School.schoolname.like(search_term),
-                    School.idcode.like(search_term)
+                    School.code.like(search_term)
                 )
             )
 
@@ -54,13 +54,13 @@ class SchoolController:
             return jsonify({'error': str(e)}), 400
 
     @staticmethod
-    def get_school(school_id):
-        school = School.query.get_or_404(school_id)
+    def get_school(code):
+        school = School.query.get_or_404(code)
         return jsonify(school.to_dict())
 
     @staticmethod
-    def update_school(school_id):
-        school = School.query.get_or_404(school_id)
+    def update_school(code):
+        school = School.query.get_or_404(code)
         data = request.get_json()
         
         if not data:
@@ -68,7 +68,7 @@ class SchoolController:
             
         try:
             if 'idcode' in data:
-                school.idcode = data['idcode']
+                school.code = data['idcode']
             if 'schoolname' in data:
                 school.schoolname = data['schoolname']
                 
@@ -79,8 +79,8 @@ class SchoolController:
             return jsonify({'error': str(e)}), 400
 
     @staticmethod
-    def delete_school(school_id):
-        school = School.query.get_or_404(school_id)
+    def delete_school(code):
+        school = School.query.get_or_404(code)
         try:
             db.session.delete(school)
             db.session.commit()
