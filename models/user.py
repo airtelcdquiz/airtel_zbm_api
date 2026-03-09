@@ -15,7 +15,7 @@ class User(db.Model):
     # email = db.Column(db.String(100), unique=True, nullable=False)
     # password = db.Column(db.String(100), nullable=False)
     # is_active = db.Column(db.Boolean, default=True)
-    phone_number = db.Column(db.String(255), unique=True, nullable=False)
+    phone_number = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
     school_level = db.Column(db.String(255), unique=True, nullable=False)
     school_class = db.Column(db.String(255), unique=True, nullable=False)
