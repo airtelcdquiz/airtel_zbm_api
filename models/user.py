@@ -61,7 +61,7 @@ class User(db.Model):
             'school_level': self.school_level,
             'school_class': self.school_class,
             # 'participant_school': self.participant_school,
-            'created_at': self.created_at.isoformat(),
+            #'created_at': self.created_at.isoformat(),
             'is_superuser': self.is_superuser,
             'is_active': self.is_active,
             'school_code': self.school_code,
