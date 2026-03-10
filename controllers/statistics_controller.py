@@ -27,7 +27,7 @@ class StatisticsController:
 
         # Construire la requête
         query = User.query.join(
-            School, User.code == School.id
+            School, User.school_code == School.code
         ).outerjoin(
             QuestionResponse,
             (user.phone_number == QuestionResponse.phone_number) &

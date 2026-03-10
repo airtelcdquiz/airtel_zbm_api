@@ -12,8 +12,9 @@ class School(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'idcode': self.code,
+            # 'id': self.id,
+            # 'idcode': self.code,
+            'code': self.code,
             'name': self.name,
             # 'created_at': self.created_at.isoformat(),
             # 'updated_at': self.updated_at.isoformat(),

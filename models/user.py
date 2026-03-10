@@ -24,7 +24,7 @@ class User(db.Model):
     #updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_superuser = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=False)
-    school_code = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
+    school_code = db.Column(db.Integer, db.ForeignKey('schools.code'), nullable=False)
 
     # Relations many-to-many avec les rôles et permissions
     roles = db.relationship(Role, secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
@@ -52,7 +52,7 @@ class User(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
+            # 'id': self.ph,
             # 'email': self.email,
             # 'password': self.password,
             # 'is_active': self.is_active,
