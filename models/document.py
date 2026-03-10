@@ -14,7 +14,7 @@ class Document(db.Model):
     file_path = Column(String(255), nullable=False)
     file_size = Column(Integer)  # Taille en bytes
     mime_type = Column(String(100), default='application/pdf')
-    uploaded_by = Column(Integer, ForeignKey('users.id'), nullable=False)
+    uploaded_by = Column(String(255), ForeignKey('users.phone_number'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
