@@ -16,7 +16,7 @@ load_dotenv()
 
 class SMSService:
     def __init__(self):
-        self.sms_api_url = os.getenv('SMS_API_URL', 'http://sms-worker-api.airtelquiz.com/send-sms')
+        self.sms_api_url = os.getenv('SMS_API_URL', 'https://sms-worker-api.airtelquiz.com/send-sms')
         logger.info(f"Service SMS initialisé avec l'API URL: {self.sms_api_url}")
 
     def generate_otp(self, length=6):
