@@ -169,7 +169,7 @@ def process_document(self, document_id):
                                 campaign_value3=q['assertions'][2],
                                 campaign_value4=q['assertions'][3],
                                 campaign_answer=q['reponse'] + 1,
-                                campaign_question_type='special-question',
+                                # campaign_question_type='special-question',
                                 campaign_status='0',
                                 counter='0',
                                 presenter='0',

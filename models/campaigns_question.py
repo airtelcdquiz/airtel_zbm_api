@@ -7,7 +7,7 @@ class CampaignsQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # campaign_code = db.Column(db.String(255), nullable=True, index=True)
     question = db.Column(db.String(255), nullable=True)
-    question_type = db.Column(db.String(255), nullable=False)
+    # question_type = db.Column(db.String(255), nullable=False)
     option_1 = db.Column(db.String(255), nullable=True)
     option_2 = db.Column(db.String(255), nullable=True)
     option_3 = db.Column(db.String(255), nullable=True)
@@ -27,7 +27,7 @@ class CampaignsQuestion(db.Model):
             'id': self.id,
             # 'campaign_code': self.campaign_code,
             'question': self.question,
-            'question_type': self.question_type,
+            # 'question_type': self.question_type,
             'option_1': self.option_1,
             'option_2': self.option_2,
             'option_3': self.option_3,
