@@ -37,7 +37,7 @@ class AuthController:
 
         # Générer l'OTP
         otp_code = AuthController.sms_service.generate_otp()
-        otp = OTP(participant_phone=phone_number, otp=otp_code)
+        otp = OTP(phone_number=phone_number, otp=otp_code)
         
         try:
             # Sauvegarder l'OTP dans la base de données
@@ -70,7 +70,7 @@ class AuthController:
 
         # Vérifier l'OTP
         otp = OTP.query.filter_by(
-            participant_phone=phone_number,
+            phone_number=phone_number,
             otp=otp_code,
             is_used=False
         ).order_by(OTP.created_at.desc()).first()
@@ -86,7 +86,7 @@ class AuthController:
         db.session.commit()
 
         # Vérifier si l'utilisateur existe et est actif
-        user = User.query.filter_by(participant_phone=phone_number).first()
+        user = User.query.filter_by(phone_number=phone_number).first()
         if not user:
             return jsonify({'error': 'Utilisateur non trouvé'}), 404
         if not user.is_active:
