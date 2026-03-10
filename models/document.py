@@ -29,7 +29,7 @@ class Document(db.Model):
     processing_result = Column(JSON)  # Résultats détaillés du traitement
 
     # Relations
-    user = relationship(User, backref='documents')
+    user = relationship(User, backref='documents', foreign_keys=[uploaded_by])
 
     def __repr__(self):
         return f'<Document {self.name}>'
