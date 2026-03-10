@@ -11,7 +11,7 @@ def send_otp():
 
 @auth_bp.route('/api/auth/verify-otp', methods=['POST'])
 def verify_otp():
-    return AuthController.verify_otp()/send-otp
+    return AuthController.verify_otp()
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
