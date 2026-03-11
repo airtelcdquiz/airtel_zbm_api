@@ -48,8 +48,8 @@ class StatisticsController:
             # func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
             User.phone_number,
             User.name,
-            School.code.label('school_code'),
-            School.name
+            School.code,
+            School.name.label('schoolname')
         ).group_by(
             User.phone_number, 
             User.name,
@@ -73,7 +73,7 @@ class StatisticsController:
                 'points': points,
                 'phone_number': item.phone_number,
                 'name': item.name,
-                'school_code': item.school_code,
+                'code': item.code,
                 'schoolname': item.schoolname
             })
 
