@@ -71,7 +71,7 @@ class StatisticsController:
             
             results.append({
                 'points': points,
-                'participant_phone': item.participant_phone,
+                'phone_number': item.phone_number,
                 'name': item.name,
                 'school_code': item.school_code,
                 'schoolname': item.schoolname
