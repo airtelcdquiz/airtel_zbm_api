@@ -30,7 +30,7 @@ class StatisticsController:
             School, User.school_code == School.code
         ).outerjoin(
             QuestionResponse,
-            (user.phone_number == QuestionResponse.phone_number) &
+            (User.phone_number == QuestionResponse.phone_number) &
             (QuestionResponse.created_at.between(start_date, end_date) if start_date and end_date else True)
         )
 

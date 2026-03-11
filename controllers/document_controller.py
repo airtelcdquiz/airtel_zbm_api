@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import desc, or_
 from worker.document_worker import process_document
 
-UPLOAD_FOLDER = 'uploads/documents'
+UPLOAD_FOLDER = '/uploads/documents'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 def allowed_file(filename):
