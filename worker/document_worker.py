@@ -12,6 +12,8 @@ import requests
 import traceback
 import logging
 from sqlalchemy import or_
+ 
+from google import genai
 
 # Configuration du logging
 logging.basicConfig(
@@ -47,6 +49,8 @@ MAX_RETRIES = os.getenv('MAX_RETRIES', 3)
 RETRY_DELAY = os.getenv('RETRY_DELAY', 300)  # 5 minutes en secondes
 COUNTDOWN = os.getenv('COUNTDOWN', 10)
 COUNTDOWN_RETRYDOC = os.getenv('COUNTDOWN_RETRYDOC', 10)
+
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 def generate_questions_from_text(page_text):
     logger.info("Début de la génération des questions avec Gemini")
@@ -96,6 +100,43 @@ Répond uniquement avec un tableau JSON comme :
         logger.error(f"Stacktrace: {traceback.format_exc()}")
         return None
 
+def generate_questions_from_text_new(page_text):
+    logger.info("Début de la génération des questions avec Gemini")
+
+    prompt = f"""
+Tu es un assistant éducatif. Génère au moins 50 questions à choix multiples de culture générale sur la RDC basées uniquement sur ce texte :
+
+{page_text}
+
+Pour chaque question, retourne un objet JSON avec :
+- question
+- assertions (4 options)
+- reponse (index de la bonne réponse)
+
+Répond uniquement avec un tableau JSON comme :
+[
+  {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 2}}
+]
+"""
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+
+        content = response.text
+        content = content.replace("```json", "").replace("```", "")
+
+        questions = json.loads(content)
+
+        logger.info(f"{len(questions)} questions générées")
+        return questions
+
+    except Exception as e:
+        logger.error(f"Erreur Gemini: {str(e)}")
+        logger.error(traceback.format_exc())
+        return None
 @celery.task(bind=True, name='process_document')
 def process_document(self, document_id):
     """Traitement d'un document en arrière-plan"""
@@ -158,7 +199,7 @@ def process_document(self, document_id):
                         continue
 
                     logger.info(f"Traitement de la page {i+1}/{document.total_pages}")
-                    questions = generate_questions_from_text(text)
+                    questions = generate_questions_from_text_new(text)
 
                     if questions != None :
                     

@@ -16,3 +16,4 @@ redis>=4.5.0
 PyMuPDF
 psycopg2-binary>=2.9.9
 # flask_jwt_extended==4.5.0
+google-genai
