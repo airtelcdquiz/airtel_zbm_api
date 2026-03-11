@@ -42,7 +42,7 @@ celery.conf.update(
 )
 
 # Configuration Gemini
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAayNaBCTKcDYhWYMpR5He_7Ru61IMlIyI')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyA7QsUL_RdNW2Eq3bP5oQr6ZimvWaMGa04')
 GEMINI_API_URL = os.getenv('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent')
 
 MAX_RETRIES = os.getenv('MAX_RETRIES', 3)
