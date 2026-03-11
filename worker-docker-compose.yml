@@ -11,6 +11,7 @@ services:
       celery -A worker.document_worker worker --loglevel=info"
     volumes:
       - ./:/app
+      - /var/containers/volumes/prod/question-worker-ia/uploads/documents:/uploads/documents/
     environment:
       - DATABASE_URL=postgresql://ussd:ussd@ussd-postgres/ussd
       - REDIS_URL=redis://ussd-redis:6379
