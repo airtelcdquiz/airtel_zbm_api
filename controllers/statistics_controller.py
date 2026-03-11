@@ -38,24 +38,23 @@ class StatisticsController:
         if search:
             query = query.filter(
                 or_(
-                    User.participant_phone.ilike(f'%{search}%'),
-                    User.participant_full_name.ilike(f'%{search}%')
+                    User.phone_number.ilike(f'%{search}%'),
+                    User.name.ilike(f'%{search}%')
                 )
             )
 
         query = query.with_entities(
             func.coalesce(func.sum(10), 0).label('points'),
             # func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
-            User.participant_phone,
-            User.participant_full_name,
+            User.phone_number,
+            User.name,
             School.code.label('school_code'),
-            School.schoolname
+            School.name
         ).group_by(
-            user.phone_number,
-            User.participant_phone,
-            User.participant_full_name,
+            User.phone_number, 
+            User.name,
             School.code,
-            School.schoolname
+            School.name
         ).order_by(
             func.coalesce(func.sum(10), 0).desc()
             # func.coalesce(func.sum(QuestionResponse.points), 0).desc()
@@ -73,7 +72,7 @@ class StatisticsController:
             results.append({
                 'points': points,
                 'participant_phone': item.participant_phone,
-                'participant_full_name': item.participant_full_name,
+                'name': item.name,
                 'school_code': item.school_code,
                 'schoolname': item.schoolname
             })
