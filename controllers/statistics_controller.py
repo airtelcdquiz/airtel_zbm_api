@@ -2,9 +2,9 @@ from flask import jsonify, request
 from models.user import User
 from models.question_responses import QuestionResponse
 from models.school import School
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, case
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal 
 
 class StatisticsController:
     @staticmethod
@@ -42,9 +42,17 @@ class StatisticsController:
                     User.name.ilike(f'%{search}%')
                 )
             )
-
+        points_case = func.coalesce(
+            func.sum(
+                case(
+                    (QuestionResponse.is_correct == True, 10),
+                    else_=0
+                )
+            ),
+            0
+        )
         query = query.with_entities(
-            func.coalesce(func.sum(10), 0).label('points'),
+            points_case.label('points'),
             # func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
             User.phone_number,
             User.name,
@@ -56,7 +64,7 @@ class StatisticsController:
             School.code,
             School.name
         ).order_by(
-            func.coalesce(func.sum(10), 0).desc()
+            points_case.desc()
             # func.coalesce(func.sum(QuestionResponse.points), 0).desc()
         )
 
