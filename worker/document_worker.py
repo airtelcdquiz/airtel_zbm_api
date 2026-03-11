@@ -44,7 +44,7 @@ celery.conf.update(
 # Configuration Gemini
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyA7QsUL_RdNW2Eq3bP5oQr6ZimvWaMGa04')
 GEMINI_API_URL = os.getenv('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent')
-
+GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-3-flash-preview')
 MAX_RETRIES = os.getenv('MAX_RETRIES', 3)
 RETRY_DELAY = os.getenv('RETRY_DELAY', 300)  # 5 minutes en secondes
 COUNTDOWN = os.getenv('COUNTDOWN', 10)
@@ -121,7 +121,7 @@ Répond uniquement avec un tableau JSON comme :
 
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model=GEMINI_MODEL,
             contents=prompt
         )
 
