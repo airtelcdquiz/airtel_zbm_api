@@ -163,16 +163,16 @@ def process_document(self, document_id):
                     for q in questions:
                         try:
                             campaign_question = CampaignsQuestion(
-                                campaign_question=q['question'],
-                                campaign_value1=q['assertions'][0],
-                                campaign_value2=q['assertions'][1],
-                                campaign_value3=q['assertions'][2],
-                                campaign_value4=q['assertions'][3],
-                                campaign_answer=q['reponse'] + 1,
+                                question=q['question'],
+                                option_1=q['assertions'][0],
+                                option_2=q['assertions'][1],
+                                option_3=q['assertions'][2],
+                                option_4=q['assertions'][3],
+                                response=q['reponse'] + 1,
                                 # campaign_question_type='special-question',
-                                campaign_status='0',
-                                counter='0',
-                                presenter='0',
+                                #campaign_status='0',
+                                #counter='0',
+                                #presenter='0',
                                 is_active=False
                             )
                             db.add(campaign_question)
@@ -301,6 +301,7 @@ def check_pending_documents():
         logger.error(f"Stacktrace: {traceback.format_exc()}")
     finally:
         db.close()
+        
 @celery.task(name='check_processing_documents')
 def check_processing_documents():
     """Vérifie s'il y a des documents en cours de traitement au démarrage du worker"""

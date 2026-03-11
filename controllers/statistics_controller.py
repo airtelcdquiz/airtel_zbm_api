@@ -44,7 +44,8 @@ class StatisticsController:
             )
 
         query = query.with_entities(
-            func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
+            func.coalesce(func.sum(10), 0).label('points'),
+            # func.coalesce(func.sum(QuestionResponse.points), 0).label('points'),
             User.participant_phone,
             User.participant_full_name,
             School.code.label('school_code'),
@@ -56,7 +57,8 @@ class StatisticsController:
             School.code,
             School.schoolname
         ).order_by(
-            func.coalesce(func.sum(QuestionResponse.points), 0).desc()
+            func.coalesce(func.sum(10), 0).desc()
+            # func.coalesce(func.sum(QuestionResponse.points), 0).desc()
         )
 
         # Paginer les résultats
