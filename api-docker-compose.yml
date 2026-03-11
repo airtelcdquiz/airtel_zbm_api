@@ -9,6 +9,7 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
+      - /var/containers/volumes/prod/question-worker-ia/uploads/documents:/uploads/documents/
     expose:
       - 5000
     command: >
