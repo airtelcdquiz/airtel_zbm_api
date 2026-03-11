@@ -43,8 +43,10 @@ celery.conf.update(
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAayNaBCTKcDYhWYMpR5He_7Ru61IMlIyI')
 GEMINI_API_URL = os.getenv('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent')
 
-MAX_RETRIES = 3
-RETRY_DELAY = 300  # 5 minutes en secondes
+MAX_RETRIES = os.getenv('MAX_RETRIES', 3)
+RETRY_DELAY = os.getenv('RETRY_DELAY', 300)  # 5 minutes en secondes
+COUNTDOWN = os.getenv('COUNTDOWN', 10)
+COUNTDOWN_RETRYDOC = os.getenv('COUNTDOWN_RETRYDOC', 10)
 
 def generate_questions_from_text(page_text):
     logger.info("Début de la génération des questions avec Gemini")
@@ -108,7 +110,7 @@ def process_document(self, document_id):
         
         if processing_doc and processing_doc.id != document_id:
             logger.warning(f"Un autre document ({processing_doc.id}) est en cours de traitement")
-            self.retry(countdown=30)
+            self.retry(countdown=COUNTDOWN_RETRYDOC)
             return
         
         # Récupérer le document
@@ -343,8 +345,8 @@ def check_processing_documents():
                 logger.info(f"Relancement du traitement du document en échec {doc.id}")
                 process_document.delay(doc.id)
         else:
-            logger.info("Aucun document à traiter. Planification d'une nouvelle vérification dans 10 minutes")
-            check_processing_documents.apply_async(countdown=600)  # 600 secondes = 10 minutes
+            logger.info(f"Aucun document à traiter. Planification d'une nouvelle vérification dans {COUNTDOWN} secondes")
+            check_processing_documents.apply_async(countdown=COUNTDOWN)  # 600 secondes = 10 minutes
             
     except Exception as e:
         logger.error(f"Erreur lors de la vérification des documents en cours de traitement: {str(e)}")
