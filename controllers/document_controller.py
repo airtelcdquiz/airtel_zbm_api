@@ -6,9 +6,6 @@ from datetime import datetime
 from sqlalchemy import desc, or_
 from worker.document_worker import process_document
 
-from models.school import School
-from models.attached_school import AttachedSchool
-from models.user import User
 
 UPLOAD_FOLDER = '/uploads/documents'
 ALLOWED_EXTENSIONS = {'pdf'}
