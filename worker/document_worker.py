@@ -86,15 +86,15 @@ Répond uniquement avec un tableau JSON comme :
                 logger.error(f"Erreur lors du parsing de la réponse Gemini: {str(e)}")
                 logger.error(f"Réponse brute: {response.text}")
                 logger.error(f"Stacktrace: {traceback.format_exc()}")
-                return []
+                return None
         else:
             logger.error(f"Erreur API Gemini - Status: {response.status_code}")
             logger.error(f"Réponse d'erreur: {response.text}")
-            return []
+            return None
     except Exception as e:
         logger.error(f"Erreur inattendue lors de l'appel à Gemini: {str(e)}")
         logger.error(f"Stacktrace: {traceback.format_exc()}")
-        return []
+        return None
 
 @celery.task(bind=True, name='process_document')
 def process_document(self, document_id):
@@ -159,34 +159,37 @@ def process_document(self, document_id):
 
                     logger.info(f"Traitement de la page {i+1}/{document.total_pages}")
                     questions = generate_questions_from_text(text)
+
+                    if questions != None :
                     
-                    # Sauvegarder les questions dans la base de données
-                    logger.info(f"Sauvegarde de {len(questions)} questions pour la page {i+1}")
-                    for q in questions:
-                        try:
-                            campaign_question = CampaignsQuestion(
-                                question=q['question'],
-                                option_1=q['assertions'][0],
-                                option_2=q['assertions'][1],
-                                option_3=q['assertions'][2],
-                                option_4=q['assertions'][3],
-                                response=q['reponse'] + 1,
-                                # campaign_question_type='special-question',
-                                #campaign_status='0',
-                                #counter='0',
-                                #presenter='0',
-                                is_active=False
-                            )
-                            db.add(campaign_question)
-                            total_questions += 1
-                        except Exception as quest_error:
-                            logger.error(f"Erreur lors du traitement d'une question sur la page {i+1}: {str(quest_error)}")
-                            continue
-                    
-                    document.current_page = i + 1
-                    db.commit()
-                    logger.info(f"Page {i+1} traitée avec succès")
-                    
+                        # Sauvegarder les questions dans la base de données
+                        logger.info(f"Sauvegarde de {len(questions)} questions pour la page {i+1}")
+                        for q in questions:
+                            try:
+                                campaign_question = CampaignsQuestion(
+                                    question=q['question'],
+                                    option_1=q['assertions'][0],
+                                    option_2=q['assertions'][1],
+                                    option_3=q['assertions'][2],
+                                    option_4=q['assertions'][3],
+                                    response=q['reponse'] + 1,
+                                    # campaign_question_type='special-question',
+                                    #campaign_status='0',
+                                    #counter='0',
+                                    #presenter='0',
+                                    is_active=False
+                                )
+                                db.add(campaign_question)
+                                total_questions += 1
+                            except Exception as quest_error:
+                                logger.error(f"Erreur lors du traitement d'une question sur la page {i+1}: {str(quest_error)}")
+                                continue
+                        
+                        document.current_page = i + 1
+                        db.commit()
+                        logger.info(f"Page {i+1} traitée avec succès")
+                    else:
+                        continue
                 except Exception as page_error:
                     error_msg = f"Erreur sur la page {i+1}: {str(page_error)}"
                     logger.error(error_msg)
