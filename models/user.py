@@ -6,7 +6,7 @@ from .permission import Permission
 # from .school import School
 from .user_role import user_roles
 from .user_permission import user_permissions
-from .attached_school import AttachedSchool
+# from .attached_school import AttachedSchool
 
 class User(db.Model):
     __tablename__ = 'users'  # Utilise la table existante 'users'

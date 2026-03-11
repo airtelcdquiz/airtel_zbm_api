@@ -1,9 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
-from .database import db
-from models.user import User
-
+from .database import db 
 
 class Document(db.Model):
     __tablename__ = 'documents'
@@ -29,7 +27,7 @@ class Document(db.Model):
     processing_result = Column(JSON)  # Résultats détaillés du traitement
 
     # Relations
-    user = relationship(User, backref='documents', foreign_keys=[uploaded_by])
+    user = relationship('User', backref='documents', foreign_keys=[uploaded_by])
 
     def __repr__(self):
         return f'<Document {self.name}>'
