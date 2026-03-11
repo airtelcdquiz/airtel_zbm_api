@@ -1,6 +1,10 @@
 from datetime import datetime
 from .database import db
 
+from models.school import School
+from models.attached_school import AttachedSchool
+from models.user import User
+
 class AttachedSchool(db.Model):
     __tablename__ = 'attached_schools'
     
