@@ -16,6 +16,8 @@ services:
       - DATABASE_URL=postgresql://ussd:ussd@ussd-postgres/ussd
       - REDIS_URL=redis://ussd-redis:6379
       - PORT=3001
+      - GEMINI_API_KEY=AIzaSyAcDLEOuGQ6Pk_t1zntJWkRH4wSXFrlDb0
+      - GEMINI_MODEL=gemini-2.0-flash
     networks:
       - dokploy-network
 
