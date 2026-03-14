@@ -52,6 +52,62 @@ COUNTDOWN_RETRYDOC = os.getenv('COUNTDOWN_RETRYDOC', 10)
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+OLLAMA_URL = os.getenv("OLLAMA_URL", "https://ollama.saas.cd/api/generate")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+
+def generate_questions_from_text_ollama(page_text):
+    logger.info("Début de la génération des questions avec Ollama")
+
+    prompt = f"""
+    Tu es un assistant éducatif.
+
+    Génère au moins 50 questions à choix multiples de culture générale sur la RDC
+    basées uniquement sur ce texte :
+
+    {page_text}
+
+    Pour chaque question retourne un JSON avec :
+    - question
+    - assertions (4 options)
+    - reponse (index de la bonne réponse)
+
+    Répond uniquement avec un tableau JSON comme ceci :
+
+    [
+    {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 2}}
+    ]
+    """
+
+    try:
+        response = requests.post(
+            OLLAMA_URL,
+            json={
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False
+            }
+        )
+
+        if response.status_code != 200:
+            logger.error(f"Ollama error {response.status_code}")
+            logger.error(response.text)
+            return None
+
+        data = response.json()
+        content = data.get("response", "")
+
+        content = content.replace("```json", "").replace("```", "").strip()
+
+        questions = json.loads(content)
+
+        logger.info(f"{len(questions)} questions générées")
+        return questions
+
+    except Exception as e:
+        logger.error(f"Erreur Ollama: {str(e)}")
+        logger.error(traceback.format_exc())
+        return None
+
 def generate_questions_from_text(page_text):
     logger.info("Début de la génération des questions avec Gemini")
     prompt = f"""
@@ -137,6 +193,7 @@ Répond uniquement avec un tableau JSON comme :
         logger.error(f"Erreur Gemini: {str(e)}")
         logger.error(traceback.format_exc())
         return None
+
 @celery.task(bind=True, name='process_document')
 def process_document(self, document_id):
     """Traitement d'un document en arrière-plan"""
@@ -199,7 +256,7 @@ def process_document(self, document_id):
                         continue
 
                     logger.info(f"Traitement de la page {i+1}/{document.total_pages}")
-                    questions = generate_questions_from_text_new(text)
+                    questions = generate_questions_from_text_ollama(text)
 
                     if questions != None :
                     
