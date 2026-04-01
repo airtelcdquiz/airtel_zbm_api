@@ -98,6 +98,7 @@ def generate_questions_from_text_ollama(page_text):
 
         content = content.replace("```json", "").replace("```", "").strip()
 
+        logger.info(content)
         questions = json.loads(content)
 
         logger.info(f"{len(questions)} questions générées")
