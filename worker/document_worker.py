@@ -54,10 +54,10 @@ def generate_questions_from_text_ollama(page_text):
 
     {page_text}
 
-    Pour chaque question retourne un JSON avec :
+    Pour chaque question doit toujours retourne un JSON avec :
     - question
     - assertions (4 options)
-    - reponse (index de la bonne réponse)
+    - reponse (index de la bonne réponse) doit toujours etre la bonne reponse à fournir situé entre 1 et 4
 
     Répond uniquement avec un seul tableau JSON contenant les objets des questons comme ceci :
     Tu ne met pas d'autres details dans ta reponse.
