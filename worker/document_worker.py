@@ -46,7 +46,7 @@ def generate_questions_from_text_ollama(page_text):
     prompt = f"""
     Tu es un assistant éducatif.
 
-    Génère au moins 50 questions à choix multiples de culture générale sur la RDC
+    Génère au moins 10 questions à choix multiples de culture générale sur la RDC
     basées uniquement sur ce texte :
 
     {page_text}
