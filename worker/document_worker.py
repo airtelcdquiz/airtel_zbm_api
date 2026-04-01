@@ -214,7 +214,10 @@ def process_document(self, document_id):
             return
         
         # Récupérer le document
-        document = db.query(Document).filter(Document.id == document_id).first()
+        document = db.query(Document).filter(
+            Document.id == document_id,
+            Document.processing_status != 'processing'
+        ).with_for_update().first()
         if not document:
             error_msg = f"Document {document_id} non trouvé"
             logger.error(error_msg)
@@ -450,7 +453,7 @@ def check_processing_documents():
                 process_document.delay(doc.id)
         else:
             logger.info(f"Aucun document à traiter. Planification d'une nouvelle vérification dans {COUNTDOWN} secondes")
-            check_processing_documents.apply_async(countdown=COUNTDOWN)  # 600 secondes = 10 minutes
+            #check_processing_documents.apply_async(countdown=COUNTDOWN)  # 600 secondes = 10 minutes
             
     except Exception as e:
         logger.error(f"Erreur lors de la vérification des documents en cours de traitement: {str(e)}")
