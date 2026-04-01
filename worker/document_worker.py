@@ -35,7 +35,7 @@ COUNTDOWN = os.getenv('COUNTDOWN', 10)
 COUNTDOWN_RETRYDOC = os.getenv('COUNTDOWN_RETRYDOC', 10)
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "https://ollama.saas.cd/api/generate")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
 
 def extract_json_array(text):
     start = text.find('[')
