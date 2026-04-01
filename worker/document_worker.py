@@ -71,10 +71,11 @@ def generate_questions_from_text_ollama(page_text):
     - assertions (4 options)
     - reponse (index de la bonne réponse)
 
-    Répond uniquement avec un tableau JSON comme ceci :
+    Répond uniquement avec un seul tableau JSON contenant les objets des questons comme ceci :
 
     [
-    {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 2}}
+        {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 2}},
+        {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 4}}
     ]
     """
 
@@ -87,7 +88,7 @@ def generate_questions_from_text_ollama(page_text):
                 "stream": False
             }
         )
-
+        logger.info(f"Ollama response : {response.text}")
         if response.status_code != 200:
             logger.error(f"Ollama error {response.status_code}")
             logger.error(response.text)
