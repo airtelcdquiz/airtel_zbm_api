@@ -10,6 +10,7 @@ import requests
 import traceback
 import logging
 from sqlalchemy import or_
+import time
   
 
 # Configuration du logging
