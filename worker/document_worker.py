@@ -118,7 +118,7 @@ def get_next_document(db):
 
     return doc
 
-def process_document(document_id):
+def process_document_simple(document_id):
     """Traitement d'un document en arrière-plan"""
     logger.info(f"Début du traitement du document {document_id}")
     db = SessionLocal()
