@@ -179,13 +179,14 @@ def process_document_simple(document_id):
                         logger.info(f"Sauvegarde de {len(questions)} questions pour la page {i+1}")
                         for q in questions:
                             try:
+                                
                                 campaign_question = CampaignsQuestion(
                                     question=q['question'],
                                     option_1=q['assertions'][0],
                                     option_2=q['assertions'][1],
                                     option_3=q['assertions'][2],
                                     option_4=q['assertions'][3],
-                                    response=q['reponse'] + 1,
+                                    response=q['reponse'],
                                     # campaign_question_type='special-question',
                                     #campaign_status='0',
                                     #counter='0',
