@@ -124,12 +124,12 @@ def process_document_simple(document_id):
     db = SessionLocal()
     document = None
     try:
-        document = db.query(Document).get(doc_id)
+        document = db.query(Document).get(document_id)
 
         if not document :
             return
 
-        print(f"🚀 Traitement document {doc.id}")
+        print(f"🚀 Traitement document TITLE:{document.name} - ID:{document.id}")
 
         # Marquer en processing
         document.processing_status = "processing"
