@@ -52,6 +52,16 @@ def generate_questions_from_text_ollama(page_text):
     - assertions (4 options) toujours avoir 4 assertions
     - reponse (index de la bonne réponse) doit toujours etre la bonne reponse à fournir situé entre 1 et 4
 
+    Tu es un assistant qui répond STRICTEMENT en JSON.
+
+    RÈGLES OBLIGATOIRES :
+    - Répond uniquement avec un tableau JSON valide
+    - Ne mets AUCUN texte avant ou après
+    - Ne mets PAS d'explication
+    - Ne mets PAS de ```json
+    - Le premier caractère doit être [
+    - Le dernier caractère doit être ]
+
     Répond uniquement avec un seul tableau JSON contenant les objets des questons comme ceci :
     Tu ne met pas d'autres details dans ta reponse.
     Ta reponse commence directement par [ les objets json {...}, {...} et  fini par ] avec les objets json des questions
@@ -69,7 +79,8 @@ def generate_questions_from_text_ollama(page_text):
             json={
                 "model": OLLAMA_MODEL,
                 "prompt": prompt,
-                "stream": False
+                "stream": False,
+                "format": "json"   # 🔥 TRÈS IMPORTANT
             }
         )
         logger.info(f"Ollama response : {response.text}")
