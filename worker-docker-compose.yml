@@ -8,7 +8,7 @@ services:
     working_dir: /app
     command: >
       bash -c "pip install -r requirements.txt && 
-      celery -A worker.document_worker worker --loglevel=info"
+      python worker/document_worker.py --loglevel=info"
     volumes:
       - ./:/app
       - /var/containers/volumes/prod/question-worker-ia/uploads/documents:/uploads/documents/
