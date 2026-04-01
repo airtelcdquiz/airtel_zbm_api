@@ -60,7 +60,10 @@ def generate_questions_from_text_ollama(page_text):
     - reponse (index de la bonne réponse)
 
     Répond uniquement avec un seul tableau JSON contenant les objets des questons comme ceci :
+    Tu ne met pas d'autres details dans ta reponse.
+    Ta reponse commence directement par [ les objets json {...}, {...} et  fini par ] avec les objets json des questions
 
+    Exemple de reponse : 
     [
         {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 2}},
         {{"question": "...", "assertions": ["...", "...", "...", "..."], "reponse": 4}}
