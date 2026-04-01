@@ -1,5 +1,3 @@
-from celery import Celery, chain
-from celery.signals import task_success, task_failure, worker_ready
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
@@ -12,8 +10,7 @@ import requests
 import traceback
 import logging
 from sqlalchemy import or_
- 
-from google import genai
+  
 
 # Configuration du logging
 logging.basicConfig(
@@ -56,7 +53,7 @@ def generate_questions_from_text_ollama(page_text):
 
     Pour chaque question doit toujours retourne un JSON avec :
     - question
-    - assertions (4 options)
+    - assertions (4 options) toujours avoir 4 assertions
     - reponse (index de la bonne réponse) doit toujours etre la bonne reponse à fournir situé entre 1 et 4
 
     Répond uniquement avec un seul tableau JSON contenant les objets des questons comme ceci :
