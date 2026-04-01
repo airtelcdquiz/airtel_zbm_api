@@ -287,6 +287,7 @@ def process_document(self, document_id):
                         db.commit()
                         logger.info(f"Page {i+1} traitée avec succès")
                     else:
+                        logger.info('questions == None')
                         continue
                 except Exception as page_error:
                     error_msg = f"Erreur sur la page {i+1}: {str(page_error)}"
