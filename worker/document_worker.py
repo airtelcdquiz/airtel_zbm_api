@@ -34,7 +34,7 @@ COUNTDOWN = os.getenv('COUNTDOWN', 10)
 COUNTDOWN_RETRYDOC = os.getenv('COUNTDOWN_RETRYDOC', 10)
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "https://ollama.saas.cd/api/generate")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
 
 def generate_questions_from_text_ollama(page_text):
     logger.info("Début de la génération des questions avec Ollama")
@@ -50,7 +50,7 @@ def generate_questions_from_text_ollama(page_text):
     Pour chaque question doit toujours retourne un JSON avec :
     - question
     - assertions (4 options) toujours avoir 4 assertions
-    - reponse (index de la bonne réponse) doit toujours etre la bonne reponse à fournir situé entre 1 et 4
+    - reponse (index de la bonne réponse) doit toujours etre la bonne reponse à fournir situé entre soit 1, 2, 3 ou 4
 
     Tu es un assistant qui répond STRICTEMENT en JSON.
 
