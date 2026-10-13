@@ -4,7 +4,6 @@ from models.document import Document
 from models.database import db
 from datetime import datetime
 from sqlalchemy import desc, or_
-from worker.document_worker import process_document
 
 
 UPLOAD_FOLDER = '/uploads/documents'
@@ -43,8 +42,10 @@ def create_document(file, name, description, phone_number):
         db.session.add(document)
         db.session.commit()
 
-        # Ajouter le document à la file d'attente de traitement
-        process_document.delay(document.id)
+        # Pas de mise en file : le worker (`worker/document_worker.py`) scrute
+        # lui-même la table `documents` et prend en charge tout document dont
+        # `processing_status` n'est pas `completed`. Le commit ci-dessus suffit
+        # donc à déclencher le traitement.
 
         return document, None
     except Exception as e:
