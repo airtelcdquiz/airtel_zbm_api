@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from datetime import datetime, timedelta
+import os
 import jwt
 from models.user import User, db
 from models.otp import OTP
@@ -11,7 +12,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AuthController:
-    SECRET_KEY = 'votre_cle_secrete_jwt'  # À changer en production
+    # Signe ET vérifie les JWT de session (generate_token / check_session /
+    # get_user_by_auth). La valeur vient de l'environnement (injectée par le
+    # docker-compose) ; le défaut conserve la valeur historique pour ne pas
+    # invalider les sessions en cours si la variable n'est pas fournie.
+    SECRET_KEY = os.getenv('JWT_SECRET', 'votre_cle_secrete_jwt')
     sms_service = SMSService()
 
     @staticmethod
