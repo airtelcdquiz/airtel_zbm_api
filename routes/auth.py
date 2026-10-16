@@ -3,20 +3,41 @@ from flask import request
 from models.user import User
 from controllers.auth_controller import AuthController
 import jwt
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_user_by_auth():
     token = request.headers.get('Authorization')
     if not token:
+        logger.warning("get_user_by_auth: en-tete Authorization manquant")
+        return None
+
+    parts = token.split(' ')
+    if len(parts) != 2 or parts[0] != 'Bearer':
+        logger.warning("get_user_by_auth: en-tete Authorization mal forme")
+        return None
+    raw_token = parts[1]
+
+    try:
+        data = jwt.decode(raw_token, AuthController.SECRET_KEY, algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        logger.warning("get_user_by_auth: JWT expire")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning("get_user_by_auth: JWT invalide: %s: %s", type(e).__name__, e)
         return None
 
     try:
-        token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
-        data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
-        current_user = User.query.get(data['phone_number'])
+        phone_number = data.get('phone_number')
+        current_user = User.query.get(phone_number)
         if not current_user:
+            logger.warning("get_user_by_auth: aucun utilisateur pour phone_number=%r", phone_number)
             return None
         return current_user
     except Exception:
+        # Defaillance inattendue (DB, etc.) : on journalise la stack complete.
+        logger.exception("get_user_by_auth: erreur inattendue")
         return None
 
 def get_user_permissions():
