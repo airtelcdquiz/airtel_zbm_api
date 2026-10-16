@@ -17,8 +17,9 @@ class User(db.Model):
     # is_active = db.Column(db.Boolean, default=True)
     phone_number = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
-    school_level = db.Column(db.String(255), unique=True, nullable=False)
-    school_class = db.Column(db.String(255), unique=True, nullable=False)
+    school_level = db.Column(db.String(255), nullable=False)
+    school_class = db.Column(db.String(255), nullable=False)
+    school_option = db.Column(db.Integer)
     # participant_school = db.Column(db.String(255), unique=True, nullable=False) 
     #created_at = db.Column(db.DateTime, default=datetime.utcnow)
     #updated_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -60,6 +61,7 @@ class User(db.Model):
             'name': self.name,
             'school_level': self.school_level,
             'school_class': self.school_class,
+            'school_option': self.school_option,
             # 'participant_school': self.participant_school,
             #'created_at': self.created_at.isoformat(),
             'is_superuser': self.is_superuser,
