@@ -154,25 +154,54 @@ class AuthController:
     def check_session():
         token = request.headers.get('Authorization')
         if not token:
+            logger.warning("check_session: en-tete Authorization manquant")
             return jsonify({'error': 'Token manquant'}), 401
 
+        parts = token.split(' ')
+        if len(parts) != 2 or parts[0] != 'Bearer':
+            logger.warning("check_session: en-tete Authorization mal forme: %r", token[:30])
+            return jsonify({'error': 'Token mal forme'}), 401
+        raw_token = parts[1]
+
+        # 1) Validation de la signature / expiration du JWT.
         try:
-            token = token.split(' ')[1]  # Enlever le préfixe 'Bearer '
-            data = jwt.decode(token, AuthController.SECRET_KEY, algorithms=['HS256'])
-            current_user = User.query.get(data['phone_number'])
-            
+            data = jwt.decode(raw_token, AuthController.SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            logger.warning("check_session: JWT expire")
+            return jsonify({'error': 'Session expiree'}), 401
+        except jwt.InvalidSignatureError:
+            # Cause classique : le token a ete signe avec une autre valeur de
+            # JWT_SECRET (ancien cookie, ou cle Dokploy differente).
+            logger.warning("check_session: signature JWT invalide (JWT_SECRET different ?)")
+            return jsonify({'error': 'Session invalide'}), 401
+        except jwt.InvalidTokenError as e:
+            logger.warning("check_session: JWT invalide: %s: %s", type(e).__name__, e)
+            return jsonify({'error': 'Session invalide'}), 401
+
+        # 2) Verification en base (utilisateur + session).
+        try:
+            phone_number = data.get('phone_number')
+            current_user = User.query.get(phone_number)
             if not current_user:
-                return jsonify({'error': 'Utilisateur non trouvé'}), 401
-                
-            # Vérifier si la session existe et est valide
-            session = Session.query.filter_by(token=token).first()
-            if not session or not session.is_valid():
-                return jsonify({'error': 'Session invalide ou expirée'}), 401
-                
+                logger.warning("check_session: aucun utilisateur pour phone_number=%r", phone_number)
+                return jsonify({'error': 'Utilisateur non trouve'}), 401
+
+            session = Session.query.filter_by(token=raw_token).first()
+            if not session:
+                logger.warning("check_session: aucune session en base pour ce token (user=%s)", phone_number)
+                return jsonify({'error': 'Session invalide ou expiree'}), 401
+            if not session.is_valid():
+                logger.warning("check_session: session expiree en base (user=%s, expire_at=%s)", phone_number, session.expire_at)
+                return jsonify({'error': 'Session invalide ou expiree'}), 401
+
             return jsonify({
                 'valid': True,
                 'user': current_user.to_dict()
             }), 200
-            
-        except Exception as e:
-            return jsonify({'error': 'Session invalide'}), 401 
+
+        except Exception:
+            # Vraie defaillance serveur (DB, serialisation...). On loggue la
+            # stack complete et on renvoie 500 : cote dashboard, un 5xx affiche
+            # une erreur au lieu de rediriger vers /login (pas de boucle).
+            logger.exception("check_session: erreur inattendue")
+            return jsonify({'error': 'Erreur interne'}), 500
