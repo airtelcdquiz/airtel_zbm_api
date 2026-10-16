@@ -16,10 +16,12 @@ services:
       bash -c "pip install -r requirements.txt && python app.py"
     environment:
       - DATABASE_URL=postgresql://ussd:ussd@ussd-postgres/ussd
-      # Clé de signature des JWT de session. Doit rester stable : la
-      # changer invalide toutes les sessions actives. Le dashboard ne la
-      # connaît plus — il valide via GET /api/auth/check-session.
-      - JWT_SECRET=votre_cle_secrete_jwt
+      # Clé de signature des JWT de session, pilotée depuis Dokploy.
+      # Doit être définie là-bas ; sinon l'app retombe sur sa valeur
+      # historique (cf. auth_controller.py). La changer invalide les
+      # sessions actives. Le dashboard ne la connaît plus — il valide
+      # via GET /api/auth/check-session.
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - dokploy-network
 

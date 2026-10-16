@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 class AuthController:
     # Signe ET vérifie les JWT de session (generate_token / check_session /
     # get_user_by_auth). La valeur vient de l'environnement (injectée par le
-    # docker-compose) ; le défaut conserve la valeur historique pour ne pas
-    # invalider les sessions en cours si la variable n'est pas fournie.
-    SECRET_KEY = os.getenv('JWT_SECRET', 'votre_cle_secrete_jwt')
+    # docker-compose, qui l'interpole depuis Dokploy) ; `or` fait retomber
+    # sur la valeur historique si la variable est absente OU vide (p. ex.
+    # interpolation non résolue), pour ne jamais signer avec une clé vide.
+    SECRET_KEY = os.getenv('JWT_SECRET') or 'votre_cle_secrete_jwt'
     sms_service = SMSService()
 
     @staticmethod
