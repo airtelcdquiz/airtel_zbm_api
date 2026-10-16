@@ -88,22 +88,22 @@ class UserController:
                 )
             )
 
-        user = query.filter_by(id=phone_number).first_or_404()
+        user = query.filter_by(phone_number=phone_number).first_or_404()
         return jsonify(user.to_dict())
     
     @staticmethod
     def get_user_permissions(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         return jsonify(user.get_all_permissions())
     
     @staticmethod
     def get_user_roles(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         return jsonify(user.get_all_roles())
 
     @staticmethod
     def add_permission(phone_number, permission_id):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         from models.permission import Permission
         permission = Permission.query.get(permission_id)
         if not permission:
@@ -116,7 +116,7 @@ class UserController:
 
     @staticmethod
     def remove_permission(phone_number, permission_id):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         from models.permission import Permission
         permission = Permission.query.get(permission_id)
         if not permission:
@@ -129,7 +129,7 @@ class UserController:
 
     @staticmethod
     def add_role(phone_number, role_id):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         from models.role import Role
         role = Role.query.get(role_id)
         if not role:
@@ -142,7 +142,7 @@ class UserController:
 
     @staticmethod
     def remove_role(phone_number, role_id):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         from models.role import Role
         role = Role.query.get(role_id)
         if not role:
@@ -155,21 +155,21 @@ class UserController:
 
     @staticmethod
     def set_superuser(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         user.is_superuser = True
         db.session.commit()
         return jsonify({'message': 'User set as superuser'}), 200
 
     @staticmethod
     def unset_superuser(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         user.is_superuser = False
         db.session.commit()
         return jsonify({'message': 'User unset as superuser'}), 200
 
     @staticmethod
     def activate_user(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         if user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà actif'}), 200
         
@@ -179,7 +179,7 @@ class UserController:
 
     @staticmethod
     def deactivate_user(phone_number):
-        user = User.query.filter_by(id=phone_number).first_or_404()
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
         if not user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà inactif'}), 200
         
