@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .database import db
 
 class Session(db.Model):
@@ -16,7 +16,16 @@ class Session(db.Model):
         self.expire_at = datetime.utcnow() + timedelta(days=1)  # Session valide pendant 1 jour
 
     def is_valid(self):
-        return datetime.utcnow() < self.expire_at
+        # expire_at peut etre naif (colonne TIMESTAMP) ou aware (TIMESTAMPTZ,
+        # cas de la base de prod) selon le type de colonne. On compare dans le
+        # meme referentiel pour eviter "can't compare offset-naive and
+        # offset-aware datetimes".
+        expire_at = self.expire_at
+        if expire_at is None:
+            return False
+        if expire_at.tzinfo is not None:
+            return datetime.now(timezone.utc) < expire_at
+        return datetime.utcnow() < expire_at
 
     def to_dict(self):
         return {

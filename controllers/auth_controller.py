@@ -167,7 +167,7 @@ class AuthController:
         try:
             data = jwt.decode(raw_token, AuthController.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            logger.warning("check_session: JWT expire")
+            logger.warning("check_session: JWT expire") 
             return jsonify({'error': 'Session expiree'}), 401
         except jwt.InvalidSignatureError:
             # Cause classique : le token a ete signe avec une autre valeur de

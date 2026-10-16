@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .database import db
 
 class OTP(db.Model):
@@ -18,7 +18,15 @@ class OTP(db.Model):
         self.expires_at = datetime.utcnow() + timedelta(minutes=5)  # OTP valide pendant 5 minutes
 
     def is_valid(self):
-        return not self.is_used and datetime.utcnow() < self.expires_at
+        if self.is_used:
+            return False
+        # Meme precaution naif/aware que Session.is_valid.
+        expires_at = self.expires_at
+        if expires_at is None:
+            return False
+        if expires_at.tzinfo is not None:
+            return datetime.now(timezone.utc) < expires_at
+        return datetime.utcnow() < expires_at
 
     def to_dict(self):
         return {
