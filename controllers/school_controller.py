@@ -1,17 +1,18 @@
 from flask import jsonify, request
 from models.school import School, db
 from sqlalchemy import or_
+from utils.access import scope_by_school
 
 class SchoolController:
     @staticmethod
-    def get_all_schools():
+    def get_all_schools(current_user):
         # Récupérer les paramètres de pagination et recherche
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
         # Construire la requête de base
-        query = School.query
+        query = scope_by_school(School.query, School.code, current_user)
 
         # Ajouter la recherche si un terme est fourni
         if search:

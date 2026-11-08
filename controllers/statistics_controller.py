@@ -9,10 +9,9 @@ from decimal import Decimal
 
 
 def _is_admin(user):
-    """Un admin/superuser voit toutes les écoles."""
-    if getattr(user, 'is_superuser', False):
-        return True
-    return any(r.name == 'admin' for r in user.roles)
+    """Seul l'admin global (superuser) voit toutes les écoles. Un rôle
+    `admin` d'école reste limité à ses écoles rattachées."""
+    return bool(getattr(user, 'is_superuser', False))
 
 
 def _allowed_school_codes(user):
