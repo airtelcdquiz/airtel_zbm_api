@@ -1,28 +1,20 @@
-from flask import jsonify, request
+from flask import jsonify, request, abort
 from models.user import User, db
 from sqlalchemy import or_
 from models.attached_school import AttachedSchool
+from utils.access import scope_by_school, can_access_school
 
 class UserController:
     @staticmethod
-    def get_all_users():
+    def get_all_users(current_user):
         # Récupérer les paramètres de pagination et recherche
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
 
-        # Récupérer l'utilisateur connecté
-        # current_user = request.current_user
-
-        # Construire la requête de base
-        query = User.query
-
-        # Si l'utilisateur n'est pas superadmin et n'a pas le rôle admin, filtrer par les écoles attachées
-        # if not current_user.is_superuser and 'admin' not in [role.name for role in current_user.roles]:
-        #     # Récupérer les IDs des écoles attachées
-        #     attached_codes = [attached_school.code for attached_school in current_user.attached_schools_association]
-        #     # Filtrer les utilisateurs par les écoles attachées
-        #     query = query.filter(User.code.in_(attached_codes))
+        # Portée : admin global -> toutes les écoles (filtre ?school_code=
+        # facultatif) ; sinon -> uniquement les écoles rattachées.
+        query = scope_by_school(User.query, User.school_code, current_user)
 
         # Ajouter la recherche si un terme est fourni
         if search:
@@ -69,36 +61,27 @@ class UserController:
             return jsonify({'error': str(e)}), 400
 
     @staticmethod
-    def get_user(phone_number):
-        # Récupérer les paramètres de recherche
-        search = request.args.get('search', '')
-
-        # Construire la requête de base
-        query = User.query
-
-        # Ajouter la recherche si un terme est fourni
-        if search:
-            search_term = f"%{search}%"
-            query = query.filter(
-                or_(
-                    User.name.like(search_term),
-                    User.phone_number.like(search_term),
-                    User.school_level.like(search_term),
-                    User.school_class.like(search_term)
-                )
-            )
-
-        user = query.filter_by(phone_number=phone_number).first_or_404()
+    def get_user(current_user, phone_number):
+        user = UserController.get_scoped_user(current_user, phone_number)
         return jsonify(user.to_dict())
+
+    @staticmethod
+    def get_scoped_user(current_user, phone_number):
+        """Renvoie l'utilisateur ciblé s'il est dans la portée de
+        current_user, sinon 404 (sans révéler son existence)."""
+        user = User.query.filter_by(phone_number=phone_number).first_or_404()
+        if user.phone_number != current_user.phone_number and not can_access_school(current_user, user.school_code):
+            abort(404)
+        return user
     
     @staticmethod
-    def get_user_permissions(phone_number):
-        user = User.query.filter_by(phone_number=phone_number).first_or_404()
+    def get_user_permissions(current_user, phone_number):
+        user = UserController.get_scoped_user(current_user, phone_number)
         return jsonify(user.get_all_permissions())
     
     @staticmethod
-    def get_user_roles(phone_number):
-        user = User.query.filter_by(phone_number=phone_number).first_or_404()
+    def get_user_roles(current_user, phone_number):
+        user = UserController.get_scoped_user(current_user, phone_number)
         return jsonify(user.get_all_roles())
 
     @staticmethod
@@ -168,8 +151,8 @@ class UserController:
         return jsonify({'message': 'User unset as superuser'}), 200
 
     @staticmethod
-    def activate_user(phone_number):
-        user = User.query.filter_by(phone_number=phone_number).first_or_404()
+    def activate_user(current_user, phone_number):
+        user = UserController.get_scoped_user(current_user, phone_number)
         if user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà actif'}), 200
         
@@ -178,8 +161,8 @@ class UserController:
         return jsonify({'message': 'Utilisateur activé avec succès', 'user': user.to_dict()}), 200
 
     @staticmethod
-    def deactivate_user(phone_number):
-        user = User.query.filter_by(phone_number=phone_number).first_or_404()
+    def deactivate_user(current_user, phone_number):
+        user = UserController.get_scoped_user(current_user, phone_number)
         if not user.is_active:
             return jsonify({'message': 'L\'utilisateur est déjà inactif'}), 200
         
