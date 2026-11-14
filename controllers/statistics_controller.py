@@ -59,8 +59,12 @@ class StatisticsController:
         ).outerjoin(
             QuestionResponse,
             (User.phone_number == QuestionResponse.phone_number) &
-            (QuestionResponse.created_at.between(start_date, end_date) if start_date and end_date else True)
+            (QuestionResponse.created_date.between(start_date, end_date) if start_date and end_date else True)
         )
+
+        # Les administrateurs ne sont pas des joueurs.
+        from controllers.players_controller import admin_condition
+        query = query.filter(~admin_condition())
 
         # Restriction par écoles autorisées (jamais élargie par un filtre).
         if allowed is not None:

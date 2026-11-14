@@ -6,6 +6,7 @@ from .permission import Permission
 # from .school import School
 from .user_role import user_roles
 from .user_permission import user_permissions
+from utils.labels import level_label, class_label, option_label
 # from .attached_school import AttachedSchool
 
 class User(db.Model):
@@ -21,7 +22,8 @@ class User(db.Model):
     school_class = db.Column(db.String(255), nullable=False)
     school_option = db.Column(db.Integer)
     # participant_school = db.Column(db.String(255), unique=True, nullable=False) 
-    #created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    is_subscribed = db.Column(db.Boolean, default=True)
     #updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_superuser = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=False)
@@ -63,7 +65,11 @@ class User(db.Model):
             'school_class': self.school_class,
             'school_option': self.school_option,
             # 'participant_school': self.participant_school,
-            #'created_at': self.created_at.isoformat(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'is_subscribed': self.is_subscribed,
+            'level_label': level_label(self.school_level),
+            'class_label': class_label(self.school_class),
+            'option_label': option_label(self.school_level, self.school_option),
             'is_superuser': self.is_superuser,
             'is_active': self.is_active,
             'school_code': self.school_code,
