@@ -1,6 +1,7 @@
 from flask import Blueprint
 from controllers.campaigns_question_controller import CampaignsQuestionController
 from controllers.auth_controller import AuthController
+from utils.access import superuser_required
 
 campaigns_question_bp = Blueprint('campaigns_questions', __name__)
 
@@ -11,6 +12,7 @@ def get_questions(current_user):
 
 @campaigns_question_bp.route('/api/quiz', methods=['POST'])
 @AuthController.token_required
+@superuser_required
 def create_question(current_user):
     return CampaignsQuestionController.create_question()
 
@@ -21,11 +23,13 @@ def get_question(current_user, question_id):
 
 @campaigns_question_bp.route('/api/quiz/<int:question_id>', methods=['PUT'])
 @AuthController.token_required
+@superuser_required
 def update_question(current_user, question_id):
     return CampaignsQuestionController.update_question(question_id)
 
 @campaigns_question_bp.route('/api/quiz/<int:question_id>', methods=['DELETE'])
 @AuthController.token_required
+@superuser_required
 def delete_question(current_user, question_id):
     return CampaignsQuestionController.delete_question(question_id)
 

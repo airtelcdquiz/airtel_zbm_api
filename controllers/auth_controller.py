@@ -119,7 +119,9 @@ class AuthController:
 
         try:
             # Supprimer la session de la base de données
-            session = Session.query.filter_by(token=token).first()
+            # L'en-tête vaut "Bearer <jwt>" ; la table stocke le jwt seul.
+            raw = token.split(' ', 1)[1] if token.startswith('Bearer ') else token
+            session = Session.query.filter_by(token=raw).first()
             if session:
                 db.session.delete(session)
                 db.session.commit()

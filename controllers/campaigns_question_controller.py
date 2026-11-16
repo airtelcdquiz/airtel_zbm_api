@@ -15,14 +15,14 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.question.like(search_term),
-                    CampaignsQuestion.option_1.like(search_term),
-                    CampaignsQuestion.option_2.like(search_term),
-                    CampaignsQuestion.option_3.like(search_term),
-                    CampaignsQuestion.option_4.like(search_term)
+                    CampaignsQuestion.question.ilike(search_term),
+                    CampaignsQuestion.option_1.ilike(search_term),
+                    CampaignsQuestion.option_2.ilike(search_term),
+                    CampaignsQuestion.option_3.ilike(search_term),
+                    CampaignsQuestion.option_4.ilike(search_term)
                 )
             )
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = query.order_by(CampaignsQuestion.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return jsonify({
             'questions': [q.to_dict() for q in pagination.items],
             'total': pagination.total,
@@ -41,14 +41,14 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.question.like(search_term),
-                    CampaignsQuestion.option_1.like(search_term),
-                    CampaignsQuestion.option_2.like(search_term),
-                    CampaignsQuestion.option_3.like(search_term),
-                    CampaignsQuestion.option_4.like(search_term)
+                    CampaignsQuestion.question.ilike(search_term),
+                    CampaignsQuestion.option_1.ilike(search_term),
+                    CampaignsQuestion.option_2.ilike(search_term),
+                    CampaignsQuestion.option_3.ilike(search_term),
+                    CampaignsQuestion.option_4.ilike(search_term)
                 )
             )
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = query.order_by(CampaignsQuestion.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return jsonify({
             'questions': [q.to_dict() for q in pagination.items],
             'total': pagination.total,
@@ -58,20 +58,42 @@ class CampaignsQuestionController:
 
 
     @staticmethod
+    def _validate(data, partial=False):
+        """Renvoie (champs nettoyés, erreur). `response` = numéro 1-4 de la
+        bonne option ; `campaign_answer` est accepté comme ancien nom."""
+        if 'campaign_answer' in data and 'response' not in data:
+            data['response'] = data['campaign_answer']
+        clean = {}
+        for f in ('question', 'option_1', 'option_2', 'option_3', 'option_4'):
+            if f in data:
+                v = (data[f] or '').strip()
+                if not v:
+                    return None, f"Le champ {f} est obligatoire"
+                if len(v) > 255:
+                    return None, f"Le champ {f} dépasse 255 caractères"
+                clean[f] = v
+            elif not partial:
+                return None, f"Le champ {f} est obligatoire"
+        if 'response' in data:
+            if str(data['response']) not in ('1', '2', '3', '4'):
+                return None, "La bonne réponse doit être 1, 2, 3 ou 4"
+            clean['response'] = str(data['response'])
+        elif not partial:
+            return None, "La bonne réponse est obligatoire"
+        for f in ('is_active', 'archived'):
+            if f in data:
+                clean[f] = bool(data[f])
+        return clean, None
+
+    @staticmethod
     def create_question():
-        data = request.get_json()
-        if not data or not data.get('question') or not data.get('campaign_answer'):
-            return jsonify({'error': 'Données invalides'}), 400
-        new_question = CampaignsQuestion(
-            question=data['question'],
-            option_1=data.get('option_1'),
-            option_2=data.get('option_2'),
-            option_3=data.get('option_3'),
-            option_4=data.get('option_4'),
-            campaign_answer=data['campaign_answer'],
-            is_active=data.get('is_active', False),
-            archived=data.get('archived', False)
-        )
+        data = request.get_json(silent=True) or {}
+        clean, err = CampaignsQuestionController._validate(data)
+        if err:
+            return jsonify({'error': err}), 400
+        clean.setdefault('is_active', False)
+        clean.setdefault('archived', False)
+        new_question = CampaignsQuestion(**clean)
         try:
             db.session.add(new_question)
             db.session.commit()
@@ -92,10 +114,12 @@ class CampaignsQuestionController:
         question = CampaignsQuestion.query.filter_by(id=question_id).first()
         if not question:
             return jsonify({'error': 'Question non trouvée'}), 404
-        data = request.get_json()
-        for field in ['question', 'option_1', 'option_2', 'option_3', 'option_4', 'campaign_answer', 'is_active', 'archived']:
-            if field in data:
-                setattr(question, field, data[field])
+        data = request.get_json(silent=True) or {}
+        clean, err = CampaignsQuestionController._validate(data, partial=True)
+        if err:
+            return jsonify({'error': err}), 400
+        for field, value in clean.items():
+            setattr(question, field, value)
         try:
             db.session.commit()
             return jsonify(question.to_dict())
@@ -127,14 +151,14 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.question.like(search_term),
-                    CampaignsQuestion.option_1.like(search_term),
-                    CampaignsQuestion.option_2.like(search_term),
-                    CampaignsQuestion.option_3.like(search_term),
-                    CampaignsQuestion.option_4.like(search_term)
+                    CampaignsQuestion.question.ilike(search_term),
+                    CampaignsQuestion.option_1.ilike(search_term),
+                    CampaignsQuestion.option_2.ilike(search_term),
+                    CampaignsQuestion.option_3.ilike(search_term),
+                    CampaignsQuestion.option_4.ilike(search_term)
                 )
             )
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = query.order_by(CampaignsQuestion.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return jsonify({
             'questions': [q.to_dict() for q in pagination.items],
             'total': pagination.total,
@@ -153,14 +177,14 @@ class CampaignsQuestionController:
             search_term = f"%{search}%"
             query = query.filter(
                 or_(
-                    CampaignsQuestion.question.like(search_term),
-                    CampaignsQuestion.option_1.like(search_term),
-                    CampaignsQuestion.option_2.like(search_term),
-                    CampaignsQuestion.option_3.like(search_term),
-                    CampaignsQuestion.option_4.like(search_term)
+                    CampaignsQuestion.question.ilike(search_term),
+                    CampaignsQuestion.option_1.ilike(search_term),
+                    CampaignsQuestion.option_2.ilike(search_term),
+                    CampaignsQuestion.option_3.ilike(search_term),
+                    CampaignsQuestion.option_4.ilike(search_term)
                 )
             )
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = query.order_by(CampaignsQuestion.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return jsonify({
             'questions': [q.to_dict() for q in pagination.items],
             'total': pagination.total,

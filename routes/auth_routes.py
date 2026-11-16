@@ -14,6 +14,7 @@ def verify_otp():
     return AuthController.verify_otp()
 
 @auth_bp.route('/logout', methods=['POST'])
+@auth_bp.route('/api/auth/logout', methods=['POST'])
 def logout():
     return AuthController.logout()
 
