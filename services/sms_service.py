@@ -1,3 +1,4 @@
+import secrets
 import random
 import string
 import os
@@ -20,7 +21,8 @@ class SMSService:
         logger.info(f"Service SMS initialisé avec l'API URL: {self.sms_api_url}")
 
     def generate_otp(self, length=6):
-        return ''.join(random.choices(string.digits, k=length))
+        # secrets : aléa cryptographique (random est prévisible).
+        return ''.join(secrets.choice(string.digits) for _ in range(length))
 
     def send_otp(self, phone_number, otp, callback=None):
         """
