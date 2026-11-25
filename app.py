@@ -14,6 +14,7 @@ from routes.document_routes import document_bp
 from routes.attached_schools_routes import attached_schools_bp
 from routes.players_routes import players_bp
 from routes.dashboard_routes import dashboard_bp
+from routes.sms_log_routes import sms_log_bp
 
 def create_app():
     app = Flask(__name__)
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(attached_schools_bp)
     app.register_blueprint(players_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(sms_log_bp)
     
     return app
 
